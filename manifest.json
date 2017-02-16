@@ -1,0 +1,23 @@
+{
+  "manifest_version": 2,
+
+  "name": "Nick Cage My Web Page",
+  "description": "See title",
+  "version": "1.0",
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "icons": { 
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png" 
+  },
+  "browser_action": {
+    "default_icon": "icon128.png",    
+    "default_title": "Nick Cage My Web Page"
+  },
+  "permissions": [
+    "activeTab"
+  ]
+}
