@@ -73,7 +73,7 @@ $(document).ready(function(){
         var height;
         var width;
         var magicNumber = 0.55;
-        console.log('checking if tall or wide rectangle');
+        // console.log('checking if tall or wide rectangle');
 
         // check if element's width is longer than height
         if ( width > height ) {
@@ -88,7 +88,7 @@ $(document).ready(function(){
                 backgroundSize = width + 'px ' + height + 'px';
                 return {
                     wideOrTall: "wide",
-                    newWidth: w,
+                    newWidth: width,
                     newBackgroundSize: backgroundSize
                 }
             } else {
@@ -221,8 +221,8 @@ $(document).ready(function(){
         //     }
         // }
 
-        replaceImages(isWideRectangle, isTallRectangle, imgCounter);
-        replaceBackgroundImages(isWideRectangle, isTallRectangle, imgCounter);
+        replaceImages(imgCounter);
+        replaceBackgroundImages(imgCounter);
         // replaceIframes(videoCounter);
         // need psuedo replace
         // need video replace
@@ -233,7 +233,7 @@ $(document).ready(function(){
     **************************************************/
 
     // Replace all standard images with pictures of nick cage
-    function replaceImages(isWide, isTall, imgCounter) {
+    function replaceImages(imgCounter) {
         // var w;
         // var h;
         var width;
@@ -267,21 +267,9 @@ $(document).ready(function(){
                 var heightString = 'height: ' + height + 'px;';
                 console.log('widthString: ', widthString, 'heightString: ', heightString);
 
-                // check if the element is very wide or very tall. if it is, set new dimensions as needed
-                // var wide = isWide(width, height, $(this));
-                // var tall = isTall(width, height, $(this));
+                // Check if the element is very wide or very tall. if it is, set new dimensions as needed so we can add a tiled background image
                 var isWideOrTall = isWideOrTallRectangle(width, height, $(this));
                 console.log('isWideOrTall: ', isWideOrTall);
-
-                // not good error checking?
-                // if (wide) {
-                //     width = wide.newWidth;
-                //     backgroundSize = wide.newbSize;
-                // }
-                // if (tall) {
-                //     height = tall.newHeight;
-                //     backgroundSize = tall.newbSize;
-                // }
 
                 if (isWideOrTall.wideOrTall === "wide") {
                     width = isWideOrTall.newWidth;
@@ -291,7 +279,7 @@ $(document).ready(function(){
                     backgroundSize = isWideOrTall.newBackgroundSize;
                 }
 
-                // If a wide or tall rectangle was found, give the image a background image and take out the original image
+                // If a wide or tall rectangle was found, give the image a tiled background image and take out the original image
                 if (isWideOrTall.wideOrTall) {
                     // create url for new image
                     newUrl = 'background-image: url("' + settings.placeholderSite + imgType + width + '/' + height + '");';
@@ -309,7 +297,7 @@ $(document).ready(function(){
                         alt : '',
                         title : ''
                     })
-                    $(this).addClass('cagified-bg');
+                    // $(this).addClass('cagified-bg');
                 }
                 // If the image wasn't a wide or tall rectangle, just replace the image source
                 else {
@@ -324,69 +312,73 @@ $(document).ready(function(){
     }
 
     // Replace background images with pictures of nick cage
-    function replaceBackgroundImages(isWide, isTall) {
-        var w;
-        var h;
-        var newURL;
+    function replaceBackgroundImages() {
         var imgType;
         var counter = 0;
 
-        // check every element on the page and see if it has a background image
-
-        // IGNORE IMAGES, VIDEOS AND IFRAMES??????
-        // ^^DFJA LKJF ALKDHG LDG LJDH LADJFKHG
-
-        $('*').not('.cagified-bg').each(function(){
-            var bSize = 'cover';
+        // Check every element that's not a video, iframe or image on the page and see if it has a background image
+        $('*').not('.cagified-bg', 'video', 'iframe', 'img').each(function(){
+            var backgroundSize = 'cover';
+            var height;
+            var imageUrl;
+            var newURL;
+            var width;
 
             // Check if the element has a background image
             if ($(this).css('background-image') !== 'none') {
+                console.log('has background image');
 
                 //First, we need to get the width and height of the background image, depending on whether or not it's background-attachment fixed
 
                 //If the element doesn't have a fixed background image, get the width/height of the element itself
                 if ($(this).css('background-attachment') !== 'fixed') {
 
-                    $(this).addClass('not-fixed'); //for me to check this is working
+                    //for me to check this is working
+                    $(this).addClass('not-fixed');
 
                     // Get height of actual element
-                    w = Math.floor($(this).outerWidth());
-                    h = Math.floor($(this).outerHeight());
+                    width = Math.floor($(this).outerWidth());
+                    height = Math.floor($(this).outerHeight());
 
                 }
 
                 // If the background is fixed, get the width/height of the background image instead because we'll need to replace that
                 else {
                     $(this).addClass('is-fixed');
+                    console.log('is fixed');
 
                     // Get image url from property value by removing the beginning url(" and ending ") part of it.
-                    image_url = $(this).css('background-image');
-                    var end = image_url.length - 2;
-                    image_url = image_url.substring(5,end);
+                    imageUrl = $(this).css('background-image');
+                    var end = imageUrl.length - 2;
+                    imageUrl = imageUrl.substring(5,end);
+                    console.log('imageUrl', imageUrl)
 
                     // Make new image object and set its source to the background image so we can get its dimensions
                     image = new Image();
-                    image.src = image_url;
+                    image.src = imageUrl;
 
                     // Set width and height to the background image's
-                    w = Math.floor(image.width);
-                    h = Math.floor(image.height);
+                    width = Math.floor(image.width);
+                    height = Math.floor(image.height);
+                    console.log('width', width, 'height', height);
 
                 }
 
                 // Check and make sure the image is not 0 x 0 before applying Nick
-                if ( (w >= 1) && (h >= 1) ) {
+                if ( (width >= 1) && (height >= 1) ) {
 
-                    // Check to see if it's a wide/tall rectangle, if it is, tweak it so it will work as a tiled/repeating background image
-                    var wide = isWide(w, h, $(this));
-                    var tall = isTall(w, h, $(this));
-                    if (wide) {
-                        w = wide.newWidth;
-                        bSize = wide.newbSize;
-                    }
-                    if (tall) {
-                        h = tall.newHeight;
-                        bSize = tall.newbSize;
+                    // If the background image isn't fixed, check if the element is very wide or very tall. if it is, set new dimensions as needed so we can add a tiled background image
+                    if (!$(this).hasClass('is-fixed')) {
+                        var isWideOrTall = isWideOrTallRectangle(width, height, $(this));
+                        console.log('isWideOrTall: ', isWideOrTall);
+
+                        if (isWideOrTall.wideOrTall === "wide") {
+                            width = isWideOrTall.newWidth;
+                            backgroundSize = isWideOrTall.newBackgroundSize;
+                        } else if (isWideOrTall.wideOrTall === "tall") {
+                            height = isWideOrTall.newHeight;
+                            backgroundSize = isWideOrTall.newBackgroundSize;
+                        }
                     }
 
                     // Cycle through the different placecage options
@@ -396,10 +388,11 @@ $(document).ready(function(){
                     counter = result.counter
 
                     // Need to use cssText to use !important
-                    newUrl = "background-image: url(" + settings.placeholderSite + imgType + w + "/" + h + ") !important";
+                    newUrl = "background-image: url(" + settings.placeholderSite + imgType + width + "/" + height + ") !important";
+                    console.log('new bg img url', newUrl);
                     $(this).css({
                         'cssText' : newUrl,
-                        'background-size' : bSize,
+                        'background-size' : backgroundSize,
                         'background-repeat': 'repeat',
                         'background-position' : 'center center'
                     });
