@@ -19,7 +19,7 @@ $(document).ready(function(){
     // Test if we're able to load an image from placecage.com to make sure it's up.
 
     var settings = {};
-    settings.placeholderSite = '//www.placecage.com/';
+    settings.placeholderSite = 'http://www.placecage.com/';
 
     /**************************************************
     Helper functions
@@ -49,20 +49,17 @@ $(document).ready(function(){
     // handles the extension to provide the different varieties of image type urls during the loop
     function videoCounter(counter, list) {
         var type;
+        var listLength = list.length;
 
-        if (counter == 1) {
-            type = list[0];
-        } else if (counter == 2 ){
-            type = list[1];
-        } else if (counter == 3 ){
-            type = list[2];
-        } else if (counter == 4 ){
-            type = list[3];
+        video = list[counter - 1];
+
+        // if the counter is the same as the length of the list, reset it
+        if (counter === listLength) {
             counter = 0;
         }
 
         return {
-            type: type,
+            video: video,
             counter: counter
         }
     }
@@ -174,58 +171,12 @@ $(document).ready(function(){
         newStyle.innerHTML = '.kill-pseudo:before, .kill-pseudo:before  { content: none !important;}';
         head.append(newStyle);
 
-        //combine into one function? makes more sense, we're running two functions on everything for no reason
-
-        //Functions for checking if an element is a very tall or wide rectangle, which will use a repeating background images when that would look best
-        // function isWideRectangle (width, height, el)  {
-        //     var calc;
-        //     console.log('wide1 rectangle');
-
-        //     if ( width > height ) {
-        //         console.log('wide rectangle');
-        //         calc = (height / width);
-        //         if (calc < 0.55) {
-        //             el.addClass('is-wide-rectangle'); //for me to check this is working
-        //             width = height;
-        //             backgroundSize = width + 'px ' + height + 'px';
-        //             // console.log('wide bSize', bSize);
-        //             return {
-        //                 newWidth: width,
-        //                 newbSize: backgroundSize
-        //             }
-        //         }
-        //     }
-        // }
-
-        // function isTallRectangle (width, height, el)  {
-        //     var calc;
-        //     console.log('tall1 rectangle');
-
-        //     // if the element's height is bigger than it's width
-        //     if ( height > width ) {
-        //         console.log('tall rectangle');
-        //         // check to see if the ratio is below the magic number
-        //         calc = (width / height);
-        //         if (calc < 0.55) {
-        //             // add class to check this is working
-        //             el.addClass('is-tall-rectangle');
-        //             // set height equal to width so we get a square image below
-        //             height = width;
-        //             backgroundSize = width + 'px ' + height + 'px';
-        //             // console.log('tall bSize', bSize);
-        //             return {
-        //                 newHeight: height,
-        //                 newbSize: backgroundSize
-        //             }
-        //         }
-        //     }
-        // }
-
-        replaceImages(imgCounter);
-        replaceBackgroundImages(imgCounter);
-        // replaceIframes(videoCounter);
+        replaceImages();
+        replaceBackgroundImages();
+        replaceIframes();
+        replaceVideos();
         // need psuedo replace
-        // need video replace
+        // need embed replace
     }
 
     /**************************************************
@@ -233,14 +184,11 @@ $(document).ready(function(){
     **************************************************/
 
     // Replace all standard images with pictures of nick cage
-    function replaceImages(imgCounter) {
-        // var w;
-        // var h;
-        var width;
+    function replaceImages() {
         var height;
-        var newURL;
         var imgType;
-
+        var newURL;
+        var width;
 
         var counter = 0;
 
@@ -297,7 +245,7 @@ $(document).ready(function(){
                         alt : '',
                         title : ''
                     })
-                    // $(this).addClass('cagified-bg');
+                    $(this).addClass('cagified-bg');
                 }
                 // If the image wasn't a wide or tall rectangle, just replace the image source
                 else {
@@ -389,7 +337,6 @@ $(document).ready(function(){
 
                     // Need to use cssText to use !important
                     newUrl = "background-image: url(" + settings.placeholderSite + imgType + width + "/" + height + ") !important";
-                    console.log('new bg img url', newUrl);
                     $(this).css({
                         'cssText' : newUrl,
                         'background-size' : backgroundSize,
@@ -403,39 +350,28 @@ $(document).ready(function(){
     }
 
     // Replace iframes with youtube video embeds of nick cage
-    function replaceIframes(){
+    function replaceIframes() {
 
-        var w;
-        var h;
-        var newURL;
+        var counterResult;
         var newIframe;
-        var counter = 0;
 
-        var iframe = document.getElementsByTagName("iframe");
+        var counter = 0;
+        var iframes = document.getElementsByTagName("iframe");
 
         var youTubeVideos = ["https://www.youtube.com/embed/S73swRzxs8Y",
         "https://www.youtube.com/embed/e6i2WRreARo",
-        "https://www.youtube.com/embed/k2OjJyR90DU"];
+        "https://www.youtube.com/embed/A23TuxKex_w"];
 
-        for (var i = 0; i < iframe.length; i++) {
+        for (var i = 0; i < iframes.length; i++) {
 
             //Cycle through different videos
             counter++;
 
-            var counterResult = videoCounter(counter, youTubeVideos);
-            newIframe = counterResult.type;
+            counterResult = videoCounter(counter, youTubeVideos);
+            newIframe = counterResult.video;
             counter = counterResult.counter;
 
-            // if (counter == 1) {
-            //     newIframe = youTubeVideos[0];
-            // } else if (counter == 2 ){
-            //     newIframe = youTubeVideos[1];
-            // } else if (counter == 3 ){
-            //     newIframe = youTubeVideos[2];
-            //     counter = 0;
-            // }
-
-            iframe[i].setAttribute("src", newIframe);
+            iframes[i].setAttribute("src", newIframe);
         }
     }
 
@@ -443,9 +379,11 @@ $(document).ready(function(){
     // Replace all 'video' elements with giphy videos of nick cage
     function replaceVideos() {
 
-        var videos = document.getElementsByTagName("video");
+        var counterResult;
         var newVideo;
+
         var counter = 0;
+        var videos = document.getElementsByTagName("video");
 
         var giphyVideos = ["https://media.giphy.com/media/LAhPbwzAsWzKw/giphy.mp4",
         "https://media.giphy.com/media/8JZkR2HiOCQbm/giphy.mp4",
@@ -454,18 +392,12 @@ $(document).ready(function(){
 
         for (var i = 0; i < videos.length; i++) {
 
-            // Cycle through different videos
+            //Cycle through different videos
             counter++;
-            if (counter == 1) {
-                newVideo = giphyVideos[0];
-            } else if (counter == 2 ){
-                newVideo = giphyVideos[1];
-            } else if (counter == 3 ){
-                newVideo = giphyVideos[2];
-            } else if (counter == 4 ){
-                newVideo = giphyVideos[3];
-                counter = 0;
-            }
+
+            counterResult = videoCounter(counter, giphyVideos);
+            newVideo = counterResult.video;
+            counter = counterResult.counter;
 
             // Clear any internal source elements, just in case
             videos[i].innerHTML = "";
@@ -482,6 +414,7 @@ $(document).ready(function(){
 
     }
 
-    // ADD FUNTION for replacing pseudo elements from old code commented out in other file
+    // ADD FUNCTION for replacing pseudo elements from old code commented out in other file
+    // ADD FUNCTION for replacing embed elements from old code commented out in other file
 
 });
