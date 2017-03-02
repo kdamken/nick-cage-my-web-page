@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>testing</title>
+    <style type="text/css">
+        div {
+          float: left;
+          margin-right: 10px;
+          border: 1px solid black;
+        }
+
+        .tall {
+          background-color: tomato;
+          height: 200px;
+          width: 50px;
+        }
+
+        .wide {
+          background-color: teal;
+          height: 50px;
+          width: 200px;
+        }
+
+        .tall--bg {
+            background-image: url('https://placekitten.com/g/50/200');
+        }
+
+        .wide--bg {
+            background-image: url('https://placekitten.com/g/200/50');
+        }
+    </style>
+</head>
+<body>
+    <div class="tall">
+        <img src="https://placekitten.com/g/50/200">
+    </div>
+    <div class="wide">
+        <img src="https://placekitten.com/g/200/50">
+    </div>
+    <div class="tall tall--bg"></div>
+    <div class="wide wide--bg"></div>
+</body>
+</html>

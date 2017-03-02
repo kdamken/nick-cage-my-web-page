@@ -1,4 +1,4 @@
-$(document).ready(function(){
+gi$(document).ready(function(){
 
     var placeholderSite = '//www.placecage.com/';
 
