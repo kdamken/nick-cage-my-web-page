@@ -125,7 +125,7 @@ $(document).ready(function(){
             console.log('Loaded initNick');
             console.info("Nick Cage is ready!");
             // where the magic happens
-            initNick();
+            replaceAllElements();
         }
 
         // Only runs on error
@@ -145,28 +145,6 @@ $(document).ready(function(){
 
     // Initiate nick cage testing and initialization if the site is up
     testCage();
-
-    // intiializes all the find and replace functions
-    function initNick() {
-
-        // Add classes to remove pseudo elements if needed
-        var head = $('head');
-        var newStyle = document.createElement("style");
-        newStyle.innerHTML = '.kill-pseudo:before, .kill-pseudo:before  { content: none !important;}';
-        head.append(newStyle);
-
-        replaceAllElements();
-
-        // replaceImages();
-        // replaceBackgroundImages();
-        // replaceIframes();
-        // replaceVideos();
-        // replaceSVGs();
-        // replaceIElements();
-        // need i replace
-        // need psuedo replace
-        // need embed replace
-    }
 
     /**************************************************
     Functions for finding and replacing elements
@@ -191,6 +169,12 @@ $(document).ready(function(){
         "https://media.giphy.com/media/PHHtPDk6peKyI/giphy.mp4",
         "https://media.giphy.com/media/Kbc2X7IHgyd7a/giphy.mp4"];
 
+        // Add classes to remove pseudo elements if needed
+        var head = $('head');
+        var newStyle = document.createElement("style");
+        newStyle.innerHTML = '.kill-pseudo:before, .kill-pseudo:before  { content: none !important;}';
+        head.append(newStyle);
+
          $('*').each(function(){
             counters.totalElements++;
             var _this = $(this);
@@ -211,11 +195,11 @@ $(document).ready(function(){
                 // console.log('before image', counters.images);
                 counters.images = replaceImages2(_this, counters.images);
                 // console.log('after image', counters.images);
-            } else if (_this.is('iframe')) {
+            } else if (_this.is('iframe') || _this.is('embed')) {
                 // console.log(_this, 'is iframe');
 
                 // console.log('before iframe', counters.iframes);
-                counters.iframes = replaceIframes2(_this, counters.iframes, iframeVideos);
+                counters.iframes = replaceIframesAndEmbeds(_this, counters.iframes, iframeVideos);
                 // console.log('after iframe', counters.iframes);
 
             } else if (_this.is('video')) {
@@ -594,7 +578,7 @@ $(document).ready(function(){
     // }
 
     // Replace iframes with youtube video embeds of nick cage
-    function replaceIframes2(_this, counter, videoList) {
+    function replaceIframesAndEmbeds(_this, counter, videoList) {
 
         var counterResult;
         var newIframe;
@@ -947,6 +931,5 @@ $(document).ready(function(){
     // }
 
     // ADD FUNCTION for replacing pseudo elements from old code commented out in other file
-    // ADD FUNCTION for replacing embed elements from old code commented out in other file
 
 });
