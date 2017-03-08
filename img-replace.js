@@ -7,7 +7,7 @@ $(document).ready(function(){
     Helper functions
     **************************************************/
 
-    // handles the extension to provide the different varieties of image type urls during the loop
+    // provide the different varieties of image type urls during the loop based on the counter
     function imgCounter(counter) {
         var imgType;
 
@@ -28,7 +28,7 @@ $(document).ready(function(){
         }
     }
 
-    // handles the extension to provide the different varieties of image type urls during the loop
+    // takes a list and provides a different item in it based on the counter
     function videoCounter(counter, list) {
         var type;
         var listLength = list.length;
@@ -151,6 +151,8 @@ $(document).ready(function(){
     **************************************************/
 
     function replaceAllElements() {
+
+        replacePseudoBackgroundImages();
         var counters = {};
         counters.totalElements = 0;
         counters.backgroundImages = 0;
@@ -175,72 +177,73 @@ $(document).ready(function(){
         newStyle.innerHTML = '.kill-pseudo:before, .kill-pseudo:before  { content: none !important;}';
         head.append(newStyle);
 
-         $('*').each(function(){
-            counters.totalElements++;
-            var _this = $(this);
+        // $('*').each(function(){
+        //     counters.totalElements++;
+        //     var _this = $(this);
 
-            if (false) {
-                console.log('check for pseudo for background image');
+        //     if (false) {
+        //         console.log('check for pseudo for background image');
 
-            } else if (_this.css('background-image') !== 'none') {
-                // console.log('has background image');
+        //     } else if (_this.css('background-image') !== 'none') {
+        //         // console.log('has background image');
 
-                // console.log('before background image', counters.backgroundImages);
-                counters.backgroundImages = replaceBackgroundImages(_this, counters.backgroundImages);
-                // console.log('after background image', counters.backgroundImages);
+        //         // console.log('before background image', counters.backgroundImages);
+        //         counters.backgroundImages = replaceBackgroundImages(_this, counters.backgroundImages);
+        //         // console.log('after background image', counters.backgroundImages);
 
-            } else if (_this.is('img') || _this.is('input[type=image]')) {
-                // console.log(_this, 'is image');
+        //     } else if (_this.is('img') || _this.is('input[type=image]')) {
+        //         // console.log(_this, 'is image');
 
-                // console.log('before image', counters.images);
-                counters.images = replaceImages(_this, counters.images);
-                // console.log('after image', counters.images);
-            } else if (_this.is('iframe') || _this.is('embed')) {
-                // console.log(_this, 'is iframe');
+        //         // console.log('before image', counters.images);
+        //         counters.images = replaceImages(_this, counters.images);
+        //         // console.log('after image', counters.images);
 
-                // console.log('before iframe', counters.iframes);
-                counters.iframes = replaceIframesAndEmbeds(_this, counters.iframes, iframeVideos);
-                // console.log('after iframe', counters.iframes);
+        //     } else if (_this.is('iframe') || _this.is('embed')) {
+        //         // console.log(_this, 'is iframe');
 
-            } else if (_this.is('video')) {
-                // console.log(_this, 'is video element');
-                // console.log('before video element', counters.videos);
-                counters.videos = replaceVideos(_this, counters.videos, giphyVideos);
-                // console.log('after video element', counters.videos);
+        //         // console.log('before iframe', counters.iframes);
+        //         counters.iframes = replaceIframesAndEmbeds(_this, counters.iframes, iframeVideos);
+        //         // console.log('after iframe', counters.iframes);
 
-            } else if (_this.is('svg')) {
-                // console.log(_this, 'is svg');
+        //     } else if (_this.is('video')) {
+        //         // console.log(_this, 'is video element');
 
-                // console.log('before video element', counters.svgs);
-                counters.svgs = replaceSVGs(_this, counters.svgs);
-                // console.log('after video element', counters.svgs);
+        //         // console.log('before video element', counters.videos);
+        //         counters.videos = replaceVideos(_this, counters.videos, giphyVideos);
+        //         // console.log('after video element', counters.videos);
 
-            } else if (_this.is('i')) {
-                // console.log(_this, 'is i element');
+        //     } else if (_this.is('svg')) {
+        //         // console.log(_this, 'is svg');
 
-                // console.log('before video element', counters.iElements);
-                counters.iElements = replaceIElements(_this, counters.iElements);
-                // console.log('after video element', counters.iElements);
+        //         // console.log('before video element', counters.svgs);
+        //         counters.svgs = replaceSVGs(_this, counters.svgs);
+        //         // console.log('after video element', counters.svgs);
 
-            } else {
-                // console.log(_this, 'other thing');
+        //     } else if (_this.is('i')) {
+        //         // console.log(_this, 'is i element');
 
-            }
-         });
+        //         // console.log('before video element', counters.iElements);
+        //         counters.iElements = replaceIElements(_this, counters.iElements);
+        //         // console.log('after video element', counters.iElements);
 
-         console.log('elements on page: ', counters.totalElements);
+        //     } else {
+        //         // console.log(_this, 'other thing');
+
+        //     }
+        // });
+
+        console.log('elements on page: ', counters.totalElements);
     }
 
-    // function upCounter(counter){
-    //     var counter = counter;
-    //     console.log('counter in', counter)
-    //     console.log(typeof(counter));
-    //     counter++;
-    //     console.log(counter);
-    //     return counter;
-    // }
-
     // gotta figure out what I did here
+
+    /**
+    either -
+        first check content to see if empty - if content.length > 2
+            yes - bg image if/else
+            no - replace it
+    **/
+
     function replacePseudoBackgroundImages() {
         var w;
         var h;
@@ -252,29 +255,37 @@ $(document).ready(function(){
         var newRules = [];
         var foundPseudo = false;
 
+        var head = $('head');
+        var newStyle = document.createElement("style");
+        newStyle.innerHTML = '.kill-pseudo:before, .kill-pseudo:before  { content: none !important;}';
+        head.append(newStyle);
+
+        var x = 0;
+
+        console.log('total el', $('*').length);
+
         $('*').each(function(){
-            // This counter is used for the custom class names for each element
-            counter++;
+            console.log('this el', $(this)[0]);
+            // console.log(window.getComputedStyle($(this)[0]).getPropertyValue('border'));
 
-            // Use these to find elements that have a pseudo element with a background image
             var before = window.getComputedStyle($(this)[0], ':before');
-            var beforeImage = before.getPropertyValue('background-image');
+            var beforeImage = before.getPropertyValue('backgroundImage');
             // var beforeContent = before.getPropertyValue('content');
-            var beforeContent = JSON.stringify(before.getPropertyValue('content'));
-            console.log(beforeContent);
+            var beforeContent = before.getPropertyValue('content').length;
+            // console.log('before', before);
+            // console.log('beforeImage', beforeImage);
+            // console.log('beforeContent:', beforeContent);
 
-
-            var after = window.getComputedStyle($(this)[0], ':after');
-            var afterImage = after.getPropertyValue('background-image');
-            // var afterContent = "\\" + after.getPropertyValue('content');
-            // var afterContent = JSON.stringify(after.getPropertyValue('content'));
-            // var afterContent = encodeURI("\f2b1");
-            // JSON.stringify(str)
-
-            // var afterIsIcon = /^\\[a-zA-Z]/.test(afterContent);
+            if(before) {
+                console.log('has before element');
+                console.log('before', before);
+                console.log('beforeImage', beforeImage);
+                console.log('beforeContent:', beforeContent);
+            }
 
             // For if they have a :before with a background-image
-            if (beforeImage != "none" ) {
+            if (beforeImage !== "none" ) {
+                console.log('has image');
                 beforeCounter++;
 
                 //Get pseudo's dimensions for url
@@ -282,11 +293,13 @@ $(document).ready(function(){
                 var beforeWidth = beforeWidthPx.replace('px', '');
                 var beforeWidthClean = parseInt(beforeWidth);
                 var beforeWidthPxClean = beforeWidthClean + "px";
-                // console.log('after:', beforeWidthPx, beforeWidth, beforeWidthClean, beforeWidthPxClean);
+                // console.log('after width:', beforeWidthPx, beforeWidth, beforeWidthClean, beforeWidthPxClean);
+
                 var beforeHeightPx = before.getPropertyValue('height');
                 var beforeHeight = beforeHeightPx.replace('px', '');
                 var beforeHeightClean = parseInt(beforeHeight);
                 var beforeHeightPxClean = beforeHeightClean + "px";
+                // console.log('after height:', beforeHeightPx, beforeHeight, beforeHeightClean, beforeHeightPxClean);
 
                 if (beforeCounter == 1) {
                     imgType = "";
@@ -299,7 +312,7 @@ $(document).ready(function(){
                     beforeCounter = 0;
                 }
 
-                newUrl = "url(" + placeholderSite + imgType + beforeWidthClean + "/" + beforeHeightClean + ")";
+                newUrl = "url(" + settings.placeholderSite + imgType + beforeWidthClean + "/" + beforeHeightClean + ")";
 
                 // Add new rule and class for new image styles
                 var beforeClass = 'pseudo-before-BG-' + counter;
@@ -312,55 +325,132 @@ $(document).ready(function(){
 
             }
 
-            // For if they have an :after with a background-image
-            if (afterImage != "none" ) {
-                // console.log(typeof(afterContent), afterContent, afterIsIcon);
-                afterCounter++;
-
-                //Get pseudo's dimensions for url
-                var afterWidthPx = after.getPropertyValue('width');
-                var afterWidth = afterWidthPx.replace('px', '');
-                var afterWidthClean = parseInt(afterWidth);
-                var afterWidthPxClean = afterWidthClean + "px";
-                // console.log('after:', afterWidthPx, afterWidth, afterWidthClean, afterWidthPxClean);
-                var afterHeightPx = after.getPropertyValue('height');
-                var afterHeight = afterHeightPx.replace('px', '');
-                var afterHeightClean = parseInt(afterHeight);
-                var afterHeightPxClean = afterHeightClean + "px";
-
-                if (afterCounter == 1) {
-                    imgType = "";
-                } else if (afterCounter == 2 ){
-                    imgType = "g/";
-                } else if (afterCounter == 3 ){
-                    imgType = "c/";
-                } else if (afterCounter == 4 ){
-                    imgType = "gif/";
-                    afterCounter = 0;
-                }
-
-                newUrl = "url(" + placeholderSite + imgType + afterWidth + "/" + afterHeight + ")";
-
-                // Add new rule and class for new image styles
-                var afterClass = 'pseudo-after-BG-' + counter;
-                var afterRule = '.' + afterClass + ':after { background-image: ' + newUrl + ' !important; background-size: cover !important; }';
-                $(this).addClass(afterClass);
-                newRules.push(afterRule);
-
-                // Set this to true to trigger adding new style element after this each loop if we found an applicable pseudo
-                foundPseudo = true;
+            if (foundPseudo) {
+                var newRulesTogether = newRules.join(' ');
+                var newStyle = document.createElement("style");
+                newStyle.innerHTML = newRulesTogether;
+                head.append(newStyle);
             }
-
-
         });
 
+        // length > 2?
+
+        // $('*').each(function(){
+        //     if (x < 1) {
+        //         console.log($(this));
+        //         x++;
+        //         // This counter is used for the custom class names for each element
+        //         counter++;
+
+        //         // Use these to find elements that have a pseudo element with a background image
+        //         console.log(window.getComputedStyle($(this)[0]));
+        //         var before = window.getComputedStyle($(this)[0], ':before');
+        //         console.log('before', before);
+        //         var beforeImage = before.getPropertyValue('backgroundImage');
+        //         // var beforeContent = before.getPropertyValue('content');
+        //         var beforeContent = JSON.stringify(before.getPropertyValue('content'));
+        //         console.log('before', before);
+        //         console.log('beforeImage', beforeImage);
+        //         console.log('beforeContent:', beforeContent);
+
+
+        //         var after = window.getComputedStyle($(this)[0], ':after');
+        //         var afterImage = after.getPropertyValue('background-image');
+        //         // var afterContent = "\\" + after.getPropertyValue('content');
+        //         // var afterContent = JSON.stringify(after.getPropertyValue('content'));
+        //         // var afterContent = encodeURI("\f2b1");
+        //         // JSON.stringify(str)
+
+        //         // var afterIsIcon = /^\\[a-zA-Z]/.test(afterContent);
+
+        //         // For if they have a :before with a background-image
+        //         if (beforeImage != "none" ) {
+        //             beforeCounter++;
+
+        //             //Get pseudo's dimensions for url
+        //             var beforeWidthPx = before.getPropertyValue('width');
+        //             var beforeWidth = beforeWidthPx.replace('px', '');
+        //             var beforeWidthClean = parseInt(beforeWidth);
+        //             var beforeWidthPxClean = beforeWidthClean + "px";
+        //             // console.log('after:', beforeWidthPx, beforeWidth, beforeWidthClean, beforeWidthPxClean);
+        //             var beforeHeightPx = before.getPropertyValue('height');
+        //             var beforeHeight = beforeHeightPx.replace('px', '');
+        //             var beforeHeightClean = parseInt(beforeHeight);
+        //             var beforeHeightPxClean = beforeHeightClean + "px";
+
+        //             if (beforeCounter == 1) {
+        //                 imgType = "";
+        //             } else if (beforeCounter == 2 ){
+        //                 imgType = "g/";
+        //             } else if (beforeCounter == 3 ){
+        //                 imgType = "c/";
+        //             } else if (beforeCounter == 4 ){
+        //                 imgType = "gif/";
+        //                 beforeCounter = 0;
+        //             }
+
+        //             // newUrl = "url(" + placeholderSite + imgType + beforeWidthClean + "/" + beforeHeightClean + ")";
+
+        //             // // Add new rule and class for new image styles
+        //             // var beforeClass = 'pseudo-before-BG-' + counter;
+        //             // var beforeRule = '.' + beforeClass + ':before { background-image: ' + newUrl + ' !important; }';
+        //             // $(this).addClass(beforeClass);
+        //             // newRules.push(beforeRule);
+
+        //             // Set this to true to trigger adding new style element after this each loop if we found an applicable pseudo
+        //             foundPseudo = true;
+
+        //         }
+
+        //         // For if they have an :after with a background-image
+        //         // if (afterImage != "none" ) {
+        //         //     // console.log(typeof(afterContent), afterContent, afterIsIcon);
+        //         //     afterCounter++;
+
+        //         //     //Get pseudo's dimensions for url
+        //         //     var afterWidthPx = after.getPropertyValue('width');
+        //         //     var afterWidth = afterWidthPx.replace('px', '');
+        //         //     var afterWidthClean = parseInt(afterWidth);
+        //         //     var afterWidthPxClean = afterWidthClean + "px";
+        //         //     // console.log('after:', afterWidthPx, afterWidth, afterWidthClean, afterWidthPxClean);
+        //         //     var afterHeightPx = after.getPropertyValue('height');
+        //         //     var afterHeight = afterHeightPx.replace('px', '');
+        //         //     var afterHeightClean = parseInt(afterHeight);
+        //         //     var afterHeightPxClean = afterHeightClean + "px";
+
+        //         //     if (afterCounter == 1) {
+        //         //         imgType = "";
+        //         //     } else if (afterCounter == 2 ){
+        //         //         imgType = "g/";
+        //         //     } else if (afterCounter == 3 ){
+        //         //         imgType = "c/";
+        //         //     } else if (afterCounter == 4 ){
+        //         //         imgType = "gif/";
+        //         //         afterCounter = 0;
+        //         //     }
+
+        //         //     newUrl = "url(" + placeholderSite + imgType + afterWidth + "/" + afterHeight + ")";
+
+        //         //     // Add new rule and class for new image styles
+        //         //     var afterClass = 'pseudo-after-BG-' + counter;
+        //         //     var afterRule = '.' + afterClass + ':after { background-image: ' + newUrl + ' !important; background-size: cover !important; }';
+        //         //     $(this).addClass(afterClass);
+        //         //     newRules.push(afterRule);
+
+        //         //     // Set this to true to trigger adding new style element after this each loop if we found an applicable pseudo
+        //         //     foundPseudo = true;
+        //         // }
+        //     }
+
+        // });
+
         // If we found a pseudo with a background-image add the new style element with the rules to replace it's image
-        if (foundPseudo) {
-            var newRulesTogether = newRules.join(' ');
-            var newStyle = document.createElement("style");
-            newStyle.innerHTML = newRulesTogether;
-            head.append(newStyle);
-        }
+        // if (foundPseudo) {
+        //     var newRulesTogether = newRules.join(' ');
+        //     var newStyle = document.createElement("style");
+        //     newStyle.innerHTML = newRulesTogether;
+        //     head.append(newStyle);
+        // }
     }
 
     // Replace all standard images with pictures of nick cage
@@ -483,9 +573,6 @@ $(document).ready(function(){
             console.log('width', width, 'height', height);
 
         }
-
-        // console.log("this is", _this);
-        // console.log(width, height);
 
         // Check and make sure the image is not 0 x 0 before applying Nick
         if ( (width >= 1) && (height >= 1) ) {
@@ -695,7 +782,5 @@ $(document).ready(function(){
 
         return counter;
     }
-
-    // ADD FUNCTION for replacing pseudo elements from old code commented out in other file
 
 });
