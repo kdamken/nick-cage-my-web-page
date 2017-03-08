@@ -11,7 +11,7 @@ $(document).ready(function(){
     function imgCounter(counter) {
         var imgType;
 
-        if (counter == 1) {
+        if (counter == 1 || counter == 0) {
             imgType = "";
         } else if (counter == 2 ){
             imgType = "g/";
@@ -46,6 +46,7 @@ $(document).ready(function(){
         }
     }
 
+    // checks whether the picture/element is very wide or tall, which helps determine whether a repeating background image will be used
     function isWideOrTallRectangle (width, height, el)  {
         var backgroundSize;
         var calc;
@@ -145,7 +146,7 @@ $(document).ready(function(){
     // Initiate nick cage testing and initialization if the site is up
     testCage();
 
-    // function that intiializes all the find and replace functions
+    // intiializes all the find and replace functions
     function initNick() {
 
         // Add classes to remove pseudo elements if needed
@@ -157,11 +158,11 @@ $(document).ready(function(){
         replaceAllElements();
 
         // replaceImages();
-        replaceBackgroundImages();
-        replaceIframes();
-        replaceVideos();
-        replaceSVGs();
-        replaceIElements();
+        // replaceBackgroundImages();
+        // replaceIframes();
+        // replaceVideos();
+        // replaceSVGs();
+        // replaceIElements();
         // need i replace
         // need psuedo replace
         // need embed replace
@@ -172,24 +173,70 @@ $(document).ready(function(){
     **************************************************/
 
     function replaceAllElements() {
-        var elementCounter = 0;
+        var counters = {};
+        counters.totalElements = 0;
+        counters.backgroundImages = 0;
+        counters.images = 0;
+        counters.iframes = 0;
+        counters.videos = 0;
+        counters.svgs = 0;
+        counters.iElements = 0;
+
+        var iframeVideos = ["https://www.youtube.com/embed/S73swRzxs8Y",
+        "https://www.youtube.com/embed/e6i2WRreARo",
+        "https://www.youtube.com/embed/A23TuxKex_w"];
+
+        var giphyVideos = ["https://media.giphy.com/media/LAhPbwzAsWzKw/giphy.mp4",
+        "https://media.giphy.com/media/8JZkR2HiOCQbm/giphy.mp4",
+        "https://media.giphy.com/media/PHHtPDk6peKyI/giphy.mp4",
+        "https://media.giphy.com/media/Kbc2X7IHgyd7a/giphy.mp4"];
+
          $('*').each(function(){
-            elementCounter++;
+            counters.totalElements++;
             var _this = $(this);
-            if (_this.is('img')) {
-                console.log(_this, 'is image');
-                replaceImages2(_this);
+
+            if (false) {
+                console.log('check for pseudo for background image');
+
+            } else if (_this.css('background-image') !== 'none') {
+                // console.log('has background image');
+
+                // console.log('before background image', counters.backgroundImages);
+                counters.backgroundImages = replaceBackgroundImages2(_this, counters.backgroundImages);
+                // console.log('after background image', counters.backgroundImages);
+
+            } else if (_this.is('img') || _this.is('input[type=image]')) {
+                // console.log(_this, 'is image');
+
+                // console.log('before image', counters.images);
+                counters.images = replaceImages2(_this, counters.images);
+                // console.log('after image', counters.images);
             } else if (_this.is('iframe')) {
                 // console.log(_this, 'is iframe');
 
+                // console.log('before iframe', counters.iframes);
+                counters.iframes = replaceIframes2(_this, counters.iframes, iframeVideos);
+                // console.log('after iframe', counters.iframes);
+
             } else if (_this.is('video')) {
                 // console.log(_this, 'is video element');
+                // console.log('before video element', counters.videos);
+                counters.videos = replaceVideos2(_this, counters.videos, giphyVideos);
+                // console.log('after video element', counters.videos);
 
             } else if (_this.is('svg')) {
                 // console.log(_this, 'is svg');
 
+                // console.log('before video element', counters.svgs);
+                counters.svgs = replaceSVGs2(_this, counters.svgs);
+                // console.log('after video element', counters.svgs);
+
             } else if (_this.is('i')) {
                 // console.log(_this, 'is i element');
+
+                // console.log('before video element', counters.iElements);
+                counters.iElements = replaceIElements2(_this, counters.iElements);
+                // console.log('after video element', counters.iElements);
 
             } else {
                 // console.log(_this, 'other thing');
@@ -197,21 +244,30 @@ $(document).ready(function(){
             }
          });
 
-         console.log('elements on page', elementCounter);
+         console.log('elements on page: ', counters.totalElements);
     }
 
-    function replaceImages2(_this) {
-        console.log(_this);
+    // function upCounter(counter){
+    //     var counter = counter;
+    //     console.log('counter in', counter)
+    //     console.log(typeof(counter));
+    //     counter++;
+    //     console.log(counter);
+    //     return counter;
+    // }
+
+    function replaceImages2(_this, counter) {
         var height;
         var imgType;
         var newURL;
         var width;
-
-        var counter = 0;
+        var counter = counter;
 
         var width = Math.floor(_this.outerWidth());
         var height = Math.floor(_this.outerHeight());
         var backgroundSize;
+
+        // console.log(_this);
 
         // console.log('element width: ', width, 'element height: ', height);
 
@@ -222,7 +278,7 @@ $(document).ready(function(){
             counter++;
             result = imgCounter(counter);
             imgType = result.imgType;
-            counter = result.counter
+            counter = result.counter;
 
             // Set up dimensions of current element as strings to be used for css rules later
             var widthString = 'width: ' + width + 'px;';
@@ -269,44 +325,148 @@ $(document).ready(function(){
                 _this.attr("src", newUrl);
                 _this.attr("srcset", newUrl);
             }
-
         }
+        return counter;
     }
 
     // Replace all standard images with pictures of nick cage
-    function replaceImages() {
-        var height;
+    // function replaceImages() {
+    //     var height;
+    //     var imgType;
+    //     var newURL;
+    //     var width;
+
+    //     var counter = 0;
+
+    //     // check every image element on the page
+    //     $('img').each(function(){
+    //         // get the dimensions of the image
+    //         var width = Math.floor($(this).outerWidth());
+    //         var height = Math.floor($(this).outerHeight());
+    //         var backgroundSize;
+
+    //         // console.log('element width: ', width, 'element height: ', height);
+
+    //         // check if the image is bigger than 1 x 1 pixels
+    //         if ( (width >= 1) && (height >= 1) ) {
+
+    //             // Cycle through the different placecage options
+    //             counter++;
+    //             result = imgCounter(counter);
+    //             imgType = result.imgType;
+    //             counter = result.counter
+
+    //             // Set up dimensions of current element as strings to be used for css rules later
+    //             var widthString = 'width: ' + width + 'px;';
+    //             var heightString = 'height: ' + height + 'px;';
+    //             // console.log('widthString: ', widthString, 'heightString: ', heightString);
+
+    //             // Check if the element is very wide or very tall. if it is, set new dimensions as needed so we can add a tiled background image
+    //             var isWideOrTall = isWideOrTallRectangle(width, height, $(this));
+    //             // console.log('isWideOrTall: ', isWideOrTall);
+
+    //             if (isWideOrTall.wideOrTall === "wide") {
+    //                 width = isWideOrTall.newWidth;
+    //                 backgroundSize = isWideOrTall.newBackgroundSize;
+    //             } else if (isWideOrTall.wideOrTall === "tall") {
+    //                 height = isWideOrTall.newHeight;
+    //                 backgroundSize = isWideOrTall.newBackgroundSize;
+    //             }
+
+    //             // If a wide or tall rectangle was found, give the image a tiled background image and take out the original image
+    //             if (isWideOrTall.wideOrTall) {
+    //                 // create url for new image
+    //                 newUrl = 'background-image: url("' + settings.placeholderSite + imgType + width + '/' + height + '");';
+    //                 // combine image url with height and width rules to use in cssText
+    //                 var cssTextVar = widthString + heightString + newUrl;
+    //                 $(this).css({
+    //                     'display' : 'block',
+    //                     'cssText': cssTextVar,
+    //                     'background-size' : backgroundSize,
+    //                     'background-repeat' : 'repeat',
+    //                     'background-position' : 'center center'
+    //                 });
+    //                 // remove inline image attributes
+    //                 $(this).attr({
+    //                     src : '',
+    //                     alt : '',
+    //                     title : ''
+    //                 })
+    //                 // add classes to see it was changed
+    //                 $(this).addClass('cagified-bg cagified-bg--image');
+    //             }
+    //             // If the image wasn't a wide or tall rectangle, just replace the image source
+    //             else {
+    //                 newUrl = settings.placeholderSite + imgType + width + "/" + height;
+    //                 $(this).attr("src", newUrl);
+    //                 $(this).attr("srcset", newUrl);
+    //             }
+
+    //         }
+
+    //     });
+    // }
+
+    // Replace background images with pictures of nick cage
+    function replaceBackgroundImages2(_this, counter) {
         var imgType;
+        var counter = counter;
+
+        var backgroundSize = 'cover';
+        var height;
+        var imageUrl;
         var newURL;
         var width;
 
-        var counter = 0;
+        //First, we need to get the width and height of the background image, depending on whether or not it's background-attachment fixed
 
-        // check every image element on the page
-        $('img').each(function(){
-            // get the dimensions of the image
-            var width = Math.floor($(this).outerWidth());
-            var height = Math.floor($(this).outerHeight());
-            var backgroundSize;
+        //If the element doesn't have a fixed background image, get the width/height of the element itself
+        if (_this.css('background-attachment') !== 'fixed') {
 
-            // console.log('element width: ', width, 'element height: ', height);
+            //for me to check this is working
+            _this.addClass('not-fixed');
+            // console.log('is not fixed');
 
-            // check if the image is bigger than 1 x 1 pixels
-            if ( (width >= 1) && (height >= 1) ) {
+            // Get height of actual element
+            width = Math.floor(_this.outerWidth());
+            height = Math.floor(_this.outerHeight());
 
-                // Cycle through the different placecage options
-                counter++;
-                result = imgCounter(counter);
-                imgType = result.imgType;
-                counter = result.counter
+        }
 
-                // Set up dimensions of current element as strings to be used for css rules later
-                var widthString = 'width: ' + width + 'px;';
-                var heightString = 'height: ' + height + 'px;';
-                // console.log('widthString: ', widthString, 'heightString: ', heightString);
+        // If the background is fixed, get the width/height of the background image instead because we'll need to replace that
+        else {
 
-                // Check if the element is very wide or very tall. if it is, set new dimensions as needed so we can add a tiled background image
-                var isWideOrTall = isWideOrTallRectangle(width, height, $(this));
+            //for me to check this is working
+            _this.addClass('is-fixed');
+            // console.log('is fixed');
+
+            // Get image url from property value by removing the beginning url(" and ending ") part of it.
+            imageUrl = _this.css('background-image');
+            var end = imageUrl.length - 2;
+            imageUrl = imageUrl.substring(5,end);
+            console.log('imageUrl', imageUrl)
+
+            // Make new image object and set its source to the background image so we can get its dimensions
+            image = new Image();
+            image.src = imageUrl;
+
+            // Set width and height to the background image's
+            width = Math.floor(image.width);
+            height = Math.floor(image.height);
+            console.log('width', width, 'height', height);
+
+        }
+
+        // console.log("this is", _this);
+        // console.log(width, height);
+
+        // Check and make sure the image is not 0 x 0 before applying Nick
+        if ( (width >= 1) && (height >= 1) ) {
+            console.log('should work')
+
+            // If the background image isn't fixed, check if the element is very wide or very tall. if it is, set new dimensions as needed so we can add a tiled background image
+            if (!_this.hasClass('is-fixed')) {
+                var isWideOrTall = isWideOrTallRectangle(width, height, _this);
                 // console.log('isWideOrTall: ', isWideOrTall);
 
                 if (isWideOrTall.wideOrTall === "wide") {
@@ -316,321 +476,475 @@ $(document).ready(function(){
                     height = isWideOrTall.newHeight;
                     backgroundSize = isWideOrTall.newBackgroundSize;
                 }
-
-                // If a wide or tall rectangle was found, give the image a tiled background image and take out the original image
-                if (isWideOrTall.wideOrTall) {
-                    // create url for new image
-                    newUrl = 'background-image: url("' + settings.placeholderSite + imgType + width + '/' + height + '");';
-                    // combine image url with height and width rules to use in cssText
-                    var cssTextVar = widthString + heightString + newUrl;
-                    $(this).css({
-                        'display' : 'block',
-                        'cssText': cssTextVar,
-                        'background-size' : backgroundSize,
-                        'background-repeat' : 'repeat',
-                        'background-position' : 'center center'
-                    });
-                    // remove inline image attributes
-                    $(this).attr({
-                        src : '',
-                        alt : '',
-                        title : ''
-                    })
-                    // add classes to see it was changed
-                    $(this).addClass('cagified-bg cagified-bg--image');
-                }
-                // If the image wasn't a wide or tall rectangle, just replace the image source
-                else {
-                    newUrl = settings.placeholderSite + imgType + width + "/" + height;
-                    $(this).attr("src", newUrl);
-                    $(this).attr("srcset", newUrl);
-                }
-
             }
 
-        });
+            // Cycle through the different placecage options
+            counter++;
+            result = imgCounter(counter);
+            imgType = result.imgType;
+            counter = result.counter
+            // console.log('result', result);
+            // console.log('imgType', imgType);
+
+            // Need to use cssText to use !important
+            newUrl = "background-image: url(" + settings.placeholderSite + imgType + width + "/" + height + ") !important";
+            _this.css({
+                'cssText' : newUrl,
+                'background-size' : backgroundSize,
+                'background-repeat': 'repeat',
+                'background-position' : 'center center'
+            });
+            // add classes to see it was changed
+            _this.addClass('cagified-bg cagified-bg--bg-image');
+        }
+
+        return counter;
     }
 
-    // Replace background images with pictures of nick cage
-    function replaceBackgroundImages() {
-        var imgType;
-        var counter = 0;
 
-        // Check every element that's not a video, iframe or image on the page and see if it has a background image
-        $('*').not('.cagified-bg', 'video', 'iframe', 'img', 'svg', 'i').each(function(){
-            var backgroundSize = 'cover';
-            var height;
-            var imageUrl;
-            var newURL;
-            var width;
+    // function replaceBackgroundImages() {
+    //     var imgType;
+    //     var counter = 0;
 
-            // Check if the element has a background image
-            if ($(this).css('background-image') !== 'none') {
-                // console.log('has background image');
+    //     // Check every element that's not a video, iframe or image on the page and see if it has a background image
+    //     $('*').not('.cagified-bg', 'video', 'iframe', 'img', 'svg', 'i').each(function(){
+    //         var backgroundSize = 'cover';
+    //         var height;
+    //         var imageUrl;
+    //         var newURL;
+    //         var width;
 
-                //First, we need to get the width and height of the background image, depending on whether or not it's background-attachment fixed
+    //         // Check if the element has a background image
+    //         if ($(this).css('background-image') !== 'none') {
+    //             // console.log('has background image');
 
-                //If the element doesn't have a fixed background image, get the width/height of the element itself
-                if ($(this).css('background-attachment') !== 'fixed') {
+    //             //If the element doesn't have a fixed background image, get the width/height of the element itself
+    //             if ($(this).css('background-attachment') !== 'fixed') {
 
-                    //for me to check this is working
-                    $(this).addClass('not-fixed');
-                    // console.log('is not fixed');
+    //                 //for me to check this is working
+    //                 $(this).addClass('not-fixed');
+    //                 // console.log('is not fixed');
 
-                    // Get height of actual element
-                    width = Math.floor($(this).outerWidth());
-                    height = Math.floor($(this).outerHeight());
+    //                 // Get height of actual element
+    //                 width = Math.floor($(this).outerWidth());
+    //                 height = Math.floor($(this).outerHeight());
 
-                }
+    //             }
 
-                // If the background is fixed, get the width/height of the background image instead because we'll need to replace that
-                else {
+    //             // If the background is fixed, get the width/height of the background image instead because we'll need to replace that
+    //             else {
 
-                    //for me to check this is working
-                    $(this).addClass('is-fixed');
-                    // console.log('is fixed');
+    //                 //for me to check this is working
+    //                 $(this).addClass('is-fixed');
+    //                 // console.log('is fixed');
 
-                    // Get image url from property value by removing the beginning url(" and ending ") part of it.
-                    imageUrl = $(this).css('background-image');
-                    var end = imageUrl.length - 2;
-                    imageUrl = imageUrl.substring(5,end);
-                    console.log('imageUrl', imageUrl)
+    //                 // Get image url from property value by removing the beginning url(" and ending ") part of it.
+    //                 imageUrl = $(this).css('background-image');
+    //                 var end = imageUrl.length - 2;
+    //                 imageUrl = imageUrl.substring(5,end);
+    //                 console.log('imageUrl', imageUrl)
 
-                    // Make new image object and set its source to the background image so we can get its dimensions
-                    image = new Image();
-                    image.src = imageUrl;
+    //                 // Make new image object and set its source to the background image so we can get its dimensions
+    //                 image = new Image();
+    //                 image.src = imageUrl;
 
-                    // Set width and height to the background image's
-                    width = Math.floor(image.width);
-                    height = Math.floor(image.height);
-                    console.log('width', width, 'height', height);
+    //                 // Set width and height to the background image's
+    //                 width = Math.floor(image.width);
+    //                 height = Math.floor(image.height);
+    //                 console.log('width', width, 'height', height);
 
-                }
+    //             }
 
-                // Check and make sure the image is not 0 x 0 before applying Nick
-                if ( (width >= 1) && (height >= 1) ) {
+    //             // Check and make sure the image is not 0 x 0 before applying Nick
+    //             if ( (width >= 1) && (height >= 1) ) {
 
-                    // If the background image isn't fixed, check if the element is very wide or very tall. if it is, set new dimensions as needed so we can add a tiled background image
-                    if (!$(this).hasClass('is-fixed')) {
-                        var isWideOrTall = isWideOrTallRectangle(width, height, $(this));
-                        // console.log('isWideOrTall: ', isWideOrTall);
+    //                 // If the background image isn't fixed, check if the element is very wide or very tall. if it is, set new dimensions as needed so we can add a tiled background image
+    //                 if (!$(this).hasClass('is-fixed')) {
+    //                     var isWideOrTall = isWideOrTallRectangle(width, height, $(this));
+    //                     // console.log('isWideOrTall: ', isWideOrTall);
 
-                        if (isWideOrTall.wideOrTall === "wide") {
-                            width = isWideOrTall.newWidth;
-                            backgroundSize = isWideOrTall.newBackgroundSize;
-                        } else if (isWideOrTall.wideOrTall === "tall") {
-                            height = isWideOrTall.newHeight;
-                            backgroundSize = isWideOrTall.newBackgroundSize;
-                        }
-                    }
+    //                     if (isWideOrTall.wideOrTall === "wide") {
+    //                         width = isWideOrTall.newWidth;
+    //                         backgroundSize = isWideOrTall.newBackgroundSize;
+    //                     } else if (isWideOrTall.wideOrTall === "tall") {
+    //                         height = isWideOrTall.newHeight;
+    //                         backgroundSize = isWideOrTall.newBackgroundSize;
+    //                     }
+    //                 }
 
-                    // Cycle through the different placecage options
-                    counter++;
-                    result = imgCounter(counter);
-                    imgType = result.imgType;
-                    counter = result.counter
+    //                 // Cycle through the different placecage options
+    //                 counter++;
+    //                 result = imgCounter(counter);
+    //                 imgType = result.imgType;
+    //                 counter = result.counter
 
-                    // Need to use cssText to use !important
-                    newUrl = "background-image: url(" + settings.placeholderSite + imgType + width + "/" + height + ") !important";
-                    $(this).css({
-                        'cssText' : newUrl,
-                        'background-size' : backgroundSize,
-                        'background-repeat': 'repeat',
-                        'background-position' : 'center center'
-                    });
-                    // add classes to see it was changed
-                    $(this).addClass('cagified-bg cagified-bg--bg-image');
-                }
-            }
-        });
-    }
+    //                 // Need to use cssText to use !important
+    //                 newUrl = "background-image: url(" + settings.placeholderSite + imgType + width + "/" + height + ") !important";
+    //                 $(this).css({
+    //                     'cssText' : newUrl,
+    //                     'background-size' : backgroundSize,
+    //                     'background-repeat': 'repeat',
+    //                     'background-position' : 'center center'
+    //                 });
+    //                 // add classes to see it was changed
+    //                 $(this).addClass('cagified-bg cagified-bg--bg-image');
+    //             }
+    //         }
+    //     });
+    // }
 
     // Replace iframes with youtube video embeds of nick cage
-    function replaceIframes() {
+    function replaceIframes2(_this, counter, videoList) {
 
         var counterResult;
         var newIframe;
 
-        var counter = 0;
-        var iframes = document.getElementsByTagName("iframe");
+        var counter = counter;
 
-        var youTubeVideos = ["https://www.youtube.com/embed/S73swRzxs8Y",
-        "https://www.youtube.com/embed/e6i2WRreARo",
-        "https://www.youtube.com/embed/A23TuxKex_w"];
+        counter++;
 
-        for (var i = 0; i < iframes.length; i++) {
+        counterResult = videoCounter(counter, videoList);
+        newIframe = counterResult.video;
+        counter = counterResult.counter;
 
-            //Cycle through different videos
-            counter++;
+        _this.attr("src", newIframe);
 
-            counterResult = videoCounter(counter, youTubeVideos);
-            newIframe = counterResult.video;
-            counter = counterResult.counter;
-
-            iframes[i].setAttribute("src", newIframe);
-        }
+        return counter;
     }
+
+    // function replaceIframes() {
+
+    //     var counterResult;
+    //     var newIframe;
+
+    //     var counter = 0;
+    //     var iframes = document.getElementsByTagName("iframe");
+
+    //     var youTubeVideos = ["https://www.youtube.com/embed/S73swRzxs8Y",
+    //     "https://www.youtube.com/embed/e6i2WRreARo",
+    //     "https://www.youtube.com/embed/A23TuxKex_w"];
+
+    //     for (var i = 0; i < iframes.length; i++) {
+
+    //         //Cycle through different videos
+    //         counter++;
+
+    //         counterResult = videoCounter(counter, youTubeVideos);
+    //         newIframe = counterResult.video;
+    //         counter = counterResult.counter;
+
+    //         iframes[i].setAttribute("src", newIframe);
+    //     }
+    // }
 
 
     // Replace all 'video' elements with giphy videos of nick cage
-    function replaceVideos() {
+    function replaceVideos2(_this, counter, videoList) {
 
         var counterResult;
         var newVideo;
 
-        var counter = 0;
-        var videos = document.getElementsByTagName("video");
+        var counter = counter;
 
-        var giphyVideos = ["https://media.giphy.com/media/LAhPbwzAsWzKw/giphy.mp4",
-        "https://media.giphy.com/media/8JZkR2HiOCQbm/giphy.mp4",
-        "https://media.giphy.com/media/PHHtPDk6peKyI/giphy.mp4",
-        "https://media.giphy.com/media/Kbc2X7IHgyd7a/giphy.mp4",]
+        //Cycle through different videos
+        counter++;
 
-        for (var i = 0; i < videos.length; i++) {
+        counterResult = videoCounter(counter, videoList);
+        newVideo = counterResult.video;
+        counter = counterResult.counter;
 
-            //Cycle through different videos
-            counter++;
+        // Clear any internal source elements, just in case
+        _this.empty();
 
-            counterResult = videoCounter(counter, giphyVideos);
-            newVideo = counterResult.video;
-            counter = counterResult.counter;
+        // Set video element src to giphy video
+        _this.attr('src', newVideo);
+        _this[0].autoplay = true;
+        _this[0].loop = true;
 
-            // Clear any internal source elements, just in case
-            videos[i].innerHTML = "";
+        // Reload and play new video, just in case
+        _this[0].load();
+        _this[0].play();
 
-            // Set video element src to giphy video
-            videos[i].setAttribute('src', newVideo);
-            videos[i].autoplay = true;
-            videos[i].loop = true;
-
-            // Reload and play new video, just in case
-            videos[i].load();
-            videos[i].play();
-        }
+        return counter;
 
     }
+
+    // function replaceVideos() {
+
+    //     var counterResult;
+    //     var newVideo;
+
+    //     var counter = 0;
+    //     var videos = document.getElementsByTagName("video");
+
+    //     var giphyVideos = ["https://media.giphy.com/media/LAhPbwzAsWzKw/giphy.mp4",
+    //     "https://media.giphy.com/media/8JZkR2HiOCQbm/giphy.mp4",
+    //     "https://media.giphy.com/media/PHHtPDk6peKyI/giphy.mp4",
+    //     "https://media.giphy.com/media/Kbc2X7IHgyd7a/giphy.mp4",]
+
+    //     for (var i = 0; i < videos.length; i++) {
+
+    //         //Cycle through different videos
+    //         counter++;
+
+    //         counterResult = videoCounter(counter, giphyVideos);
+    //         newVideo = counterResult.video;
+    //         counter = counterResult.counter;
+
+    //         // Clear any internal source elements, just in case
+    //         videos[i].innerHTML = "";
+
+    //         // Set video element src to giphy video
+    //         videos[i].setAttribute('src', newVideo);
+    //         videos[i].autoplay = true;
+    //         videos[i].loop = true;
+
+    //         // Reload and play new video, just in case
+    //         videos[i].load();
+    //         videos[i].play();
+    //     }
+
+    // }
 
     // Replace all 'svg' elements with images of nick cage. Note this is best done with a background image.
-    function replaceSVGs() {
+    function replaceSVGs2(_this, counter) {
         var imgType;
-        var counter = 0;
+        var counter = counter;
 
-        $('svg').each(function(){
+        var newURL;
 
-            var newURL;
+        // get dimensions of current svg
+        var width = Math.floor(_this.outerWidth());
+        var height = Math.floor(_this.outerHeight());
+        var backgroundSize = 'cover';
 
-            // get dimensions of current svg
-            var width = Math.floor($(this).outerWidth());
-            var height = Math.floor($(this).outerHeight());
-            var backgroundSize = 'cover';
+        // If the dimensions are 0 x 0 do nothing
+        if ( (width >= 1) && (height >= 1) ) {
 
-            // If the dimensions are 0 x 0 do nothing
-            if ( (width >= 1) && (height >= 1) ) {
+            // Set up dimensions of current element as strings to be used for css rules later
+            var widthString = 'width: ' + width + 'px !important; ';
+            var heightString = 'height: ' + height + 'px !important; ';
+            // console.log('widthString: ', widthString, 'heightString: ', heightString);
 
-                // Set up dimensions of current element as strings to be used for css rules later
-                var widthString = 'width: ' + width + 'px !important; ';
-                var heightString = 'height: ' + height + 'px !important; ';
-                // console.log('widthString: ', widthString, 'heightString: ', heightString);
+            // Check if the element is very wide or very tall. if it is, set new dimensions as needed so we can add a tiled background image
+            var isWideOrTall = isWideOrTallRectangle(width, height, _this);
+            // console.log('isWideOrTall: ', isWideOrTall);
 
-                // Check if the element is very wide or very tall. if it is, set new dimensions as needed so we can add a tiled background image
-                var isWideOrTall = isWideOrTallRectangle(width, height, $(this));
-                // console.log('isWideOrTall: ', isWideOrTall);
-
-                if (isWideOrTall.wideOrTall === "wide") {
-                    width = isWideOrTall.newWidth;
-                    backgroundSize = isWideOrTall.newBackgroundSize;
-                } else if (isWideOrTall.wideOrTall === "tall") {
-                    height = isWideOrTall.newHeight;
-                    backgroundSize = isWideOrTall.newBackgroundSize;
-                }
-
-                // Cycle through the different placecage options
-                counter++;
-                result = imgCounter(counter);
-                imgType = result.imgType;
-                counter = result.counter;
-
-                // Need to use cssText to use !important
-                newUrl = "background-image: url(" + settings.placeholderSite + imgType + width + "/" + height + ") !important";
-
-                // combine image url with height and width rules to use in cssText
-                var cssTextVar = widthString + heightString + newUrl;
-                $(this).css({
-                    'cssText' : cssTextVar,
-                    'background-size' : backgroundSize,
-                    'background-repeat': 'repeat',
-                    'background-position' : 'center center'
-                });
-
-                // add classes to see it was changed
-                $(this).addClass('cagified-bg cagified-bg--svg');
-
-                // clear svg in case it contains anything
-                $(this).empty();
+            if (isWideOrTall.wideOrTall === "wide") {
+                width = isWideOrTall.newWidth;
+                backgroundSize = isWideOrTall.newBackgroundSize;
+            } else if (isWideOrTall.wideOrTall === "tall") {
+                height = isWideOrTall.newHeight;
+                backgroundSize = isWideOrTall.newBackgroundSize;
             }
 
-        });
+            // Cycle through the different placecage options
+            counter++;
+            result = imgCounter(counter);
+            imgType = result.imgType;
+            counter = result.counter;
+
+            // Need to use cssText to use !important
+            newUrl = "background-image: url(" + settings.placeholderSite + imgType + width + "/" + height + ") !important";
+
+            // combine image url with height and width rules to use in cssText
+            var cssTextVar = widthString + heightString + newUrl;
+            _this.css({
+                'cssText' : cssTextVar,
+                'background-size' : backgroundSize,
+                'background-repeat': 'repeat',
+                'background-position' : 'center center'
+            });
+
+            // add classes to see it was changed
+            _this.addClass('cagified-bg cagified-bg--svg');
+
+            // clear svg in case it contains anything
+            _this.empty();
+        }
+
+        return counter;
     }
 
-    function replaceIElements() {
+    // function replaceSVGs() {
+    //     var imgType;
+    //     var counter = 0;
+
+    //     $('svg').each(function(){
+
+    //         var newURL;
+
+    //         // get dimensions of current svg
+    //         var width = Math.floor($(this).outerWidth());
+    //         var height = Math.floor($(this).outerHeight());
+    //         var backgroundSize = 'cover';
+
+    //         // If the dimensions are 0 x 0 do nothing
+    //         if ( (width >= 1) && (height >= 1) ) {
+
+    //             // Set up dimensions of current element as strings to be used for css rules later
+    //             var widthString = 'width: ' + width + 'px !important; ';
+    //             var heightString = 'height: ' + height + 'px !important; ';
+    //             // console.log('widthString: ', widthString, 'heightString: ', heightString);
+
+    //             // Check if the element is very wide or very tall. if it is, set new dimensions as needed so we can add a tiled background image
+    //             var isWideOrTall = isWideOrTallRectangle(width, height, $(this));
+    //             // console.log('isWideOrTall: ', isWideOrTall);
+
+    //             if (isWideOrTall.wideOrTall === "wide") {
+    //                 width = isWideOrTall.newWidth;
+    //                 backgroundSize = isWideOrTall.newBackgroundSize;
+    //             } else if (isWideOrTall.wideOrTall === "tall") {
+    //                 height = isWideOrTall.newHeight;
+    //                 backgroundSize = isWideOrTall.newBackgroundSize;
+    //             }
+
+    //             // Cycle through the different placecage options
+    //             counter++;
+    //             result = imgCounter(counter);
+    //             imgType = result.imgType;
+    //             counter = result.counter;
+
+    //             // Need to use cssText to use !important
+    //             newUrl = "background-image: url(" + settings.placeholderSite + imgType + width + "/" + height + ") !important";
+
+    //             // combine image url with height and width rules to use in cssText
+    //             var cssTextVar = widthString + heightString + newUrl;
+    //             $(this).css({
+    //                 'cssText' : cssTextVar,
+    //                 'background-size' : backgroundSize,
+    //                 'background-repeat': 'repeat',
+    //                 'background-position' : 'center center'
+    //             });
+
+    //             // add classes to see it was changed
+    //             $(this).addClass('cagified-bg cagified-bg--svg');
+
+    //             // clear svg in case it contains anything
+    //             $(this).empty();
+    //         }
+
+    //     });
+    // }
+
+    function replaceIElements2(_this, counter) {
         var imgType;
-        var counter = 0;
+        var counter = counter;
 
-        $('i').each(function(){
+        var newURL;
 
-            var newURL;
+        // get dimensions of current svg
+        var width = Math.floor(_this.outerWidth());
+        var height = Math.floor(_this.outerHeight());
+        var backgroundSize = 'cover';
 
-            // get dimensions of current svg
-            var width = Math.floor($(this).outerWidth());
-            var height = Math.floor($(this).outerHeight());
-            var backgroundSize = 'cover';
+        // If the dimensions are 0 x 0 do nothing
+        if ( (width >= 1) && (height >= 1) ) {
 
-            // If the dimensions are 0 x 0 do nothing
-            if ( (width >= 1) && (height >= 1) ) {
+            // Set up dimensions of current element as strings to be used for css rules later
+            var widthString = 'width: ' + width + 'px !important; ';
+            var heightString = 'height: ' + height + 'px !important; ';
+            // console.log('widthString: ', widthString, 'heightString: ', heightString);
 
-                // Set up dimensions of current element as strings to be used for css rules later
-                var widthString = 'width: ' + width + 'px !important; ';
-                var heightString = 'height: ' + height + 'px !important; ';
-                // console.log('widthString: ', widthString, 'heightString: ', heightString);
+            // Check if the element is very wide or very tall. if it is, set new dimensions as needed so we can add a tiled background image
+            var isWideOrTall = isWideOrTallRectangle(width, height, _this);
+            // console.log('isWideOrTall: ', isWideOrTall);
 
-                // Check if the element is very wide or very tall. if it is, set new dimensions as needed so we can add a tiled background image
-                var isWideOrTall = isWideOrTallRectangle(width, height, $(this));
-                // console.log('isWideOrTall: ', isWideOrTall);
-
-                if (isWideOrTall.wideOrTall === "wide") {
-                    width = isWideOrTall.newWidth;
-                    backgroundSize = isWideOrTall.newBackgroundSize;
-                } else if (isWideOrTall.wideOrTall === "tall") {
-                    height = isWideOrTall.newHeight;
-                    backgroundSize = isWideOrTall.newBackgroundSize;
-                }
-
-                // Cycle through the different placecage options
-                counter++;
-                result = imgCounter(counter);
-                imgType = result.imgType;
-                counter = result.counter;
-
-                // Need to use cssText to use !important
-                newUrl = "background-image: url(" + settings.placeholderSite + imgType + width + "/" + height + ") !important";
-                // combine image url with height and width rules to use in cssText
-                var cssTextVar = widthString + heightString + newUrl;
-                $(this).css({
-                    'cssText' : cssTextVar,
-                    'background-size' : backgroundSize,
-                    'background-repeat': 'repeat',
-                    'background-position' : 'center center'
-                });
-
-                // add classes to see it was changed
-                $(this).addClass('cagified-bg cagified-bg--i-element');
-
-                // remove all pseudo elements from it, as this is how font icons usually work
-                $(this).addClass('kill-pseudo');
+            if (isWideOrTall.wideOrTall === "wide") {
+                width = isWideOrTall.newWidth;
+                backgroundSize = isWideOrTall.newBackgroundSize;
+            } else if (isWideOrTall.wideOrTall === "tall") {
+                height = isWideOrTall.newHeight;
+                backgroundSize = isWideOrTall.newBackgroundSize;
             }
 
-        });
+            // Cycle through the different placecage options
+            counter++;
+            result = imgCounter(counter);
+            imgType = result.imgType;
+            counter = result.counter;
+
+            // Need to use cssText to use !important
+            newUrl = "background-image: url(" + settings.placeholderSite + imgType + width + "/" + height + ") !important";
+            // combine image url with height and width rules to use in cssText
+            var cssTextVar = widthString + heightString + newUrl;
+            _this.css({
+                'cssText' : cssTextVar,
+                'background-size' : backgroundSize,
+                'background-repeat': 'repeat',
+                'background-position' : 'center center',
+                'display': 'inline-block'
+            });
+
+            // add classes to see it was changed
+            _this.addClass('cagified-bg cagified-bg--i-element');
+
+            // remove all pseudo elements from it, as this is how font icons usually work
+            _this.addClass('kill-pseudo');
+        }
+
+        return counter;
     }
+
+    // function replaceIElements() {
+    //     var imgType;
+    //     var counter = 0;
+
+    //     $('i').each(function(){
+
+    //         var newURL;
+
+    //         // get dimensions of current svg
+    //         var width = Math.floor($(this).outerWidth());
+    //         var height = Math.floor($(this).outerHeight());
+    //         var backgroundSize = 'cover';
+
+    //         // If the dimensions are 0 x 0 do nothing
+    //         if ( (width >= 1) && (height >= 1) ) {
+
+    //             // Set up dimensions of current element as strings to be used for css rules later
+    //             var widthString = 'width: ' + width + 'px !important; ';
+    //             var heightString = 'height: ' + height + 'px !important; ';
+    //             // console.log('widthString: ', widthString, 'heightString: ', heightString);
+
+    //             // Check if the element is very wide or very tall. if it is, set new dimensions as needed so we can add a tiled background image
+    //             var isWideOrTall = isWideOrTallRectangle(width, height, $(this));
+    //             // console.log('isWideOrTall: ', isWideOrTall);
+
+    //             if (isWideOrTall.wideOrTall === "wide") {
+    //                 width = isWideOrTall.newWidth;
+    //                 backgroundSize = isWideOrTall.newBackgroundSize;
+    //             } else if (isWideOrTall.wideOrTall === "tall") {
+    //                 height = isWideOrTall.newHeight;
+    //                 backgroundSize = isWideOrTall.newBackgroundSize;
+    //             }
+
+    //             // Cycle through the different placecage options
+    //             counter++;
+    //             result = imgCounter(counter);
+    //             imgType = result.imgType;
+    //             counter = result.counter;
+
+    //             // Need to use cssText to use !important
+    //             newUrl = "background-image: url(" + settings.placeholderSite + imgType + width + "/" + height + ") !important";
+    //             // combine image url with height and width rules to use in cssText
+    //             var cssTextVar = widthString + heightString + newUrl;
+    //             $(this).css({
+    //                 'cssText' : cssTextVar,
+    //                 'background-size' : backgroundSize,
+    //                 'background-repeat': 'repeat',
+    //                 'background-position' : 'center center'
+    //             });
+
+    //             // add classes to see it was changed
+    //             $(this).addClass('cagified-bg cagified-bg--i-element');
+
+    //             // remove all pseudo elements from it, as this is how font icons usually work
+    //             $(this).addClass('kill-pseudo');
+    //         }
+
+    //     });
+    // }
 
     // ADD FUNCTION for replacing pseudo elements from old code commented out in other file
     // ADD FUNCTION for replacing embed elements from old code commented out in other file
