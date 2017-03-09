@@ -30,6 +30,39 @@
           background-image: url('https://placekitten.com/g/50/52');
         }
 
+        .pseudo--before-content:before {
+          border: 2px solid rgb(255,0,0);
+          content:"hey there";
+          width: 50px;
+          height: 52px;
+          position: absolute;
+          left: 5px;
+          top: 0;
+          /*background-image: url('https://placekitten.com/g/50/52');*/
+        }
+
+        .pseudo--after:after {
+          border: 2px solid rgb(255,0,0);
+          content:"";
+          width: 50px;
+          height: 52px;
+          position: absolute;
+          left: 5px;
+          top: 0;
+          background-image: url('https://placekitten.com/g/50/52');
+        }
+
+        .pseudo--after-content:after {
+          border: 2px solid rgb(255,0,0);
+          content:"hey there";
+          width: 50px;
+          height: 52px;
+          position: absolute;
+          left: 5px;
+          top: 0;
+          /*background-image: url('https://placekitten.com/g/50/52');*/
+        }
+
         .tall {
           background-color: tomato;
           height: 200px;
@@ -70,9 +103,30 @@
     </style>
 </head>
 <body>
-    <div class="pseudo pseudo--before">
+    <div class="pseudo pseudo--before"></div>
+    <div class="pseudo pseudo--before"></div>
+    <div class="pseudo pseudo--before"></div>
+    <div class="pseudo pseudo--before"></div>
+    <div class="pseudo pseudo--before"></div>
+    <br>
+    <div class="pseudo pseudo--after"></div>
+    <div class="pseudo pseudo--after"></div>
+    <div class="pseudo pseudo--after"></div>
+    <div class="pseudo pseudo--after"></div>
+    <div class="pseudo pseudo--after"></div>
+    <br>
+    <div class="pseudo pseudo--before-content"></div>
+    <div class="pseudo pseudo--before-content"></div>
+    <div class="pseudo pseudo--before-content"></div>
+    <div class="pseudo pseudo--before-content"></div>
+    <div class="pseudo pseudo--before-content"></div>
+    <br>
+    <div class="pseudo pseudo--after-content"></div>
+    <div class="pseudo pseudo--after-content"></div>
+    <div class="pseudo pseudo--after-content"></div>
+    <div class="pseudo pseudo--after-content"></div>
+    <div class="pseudo pseudo--after-content"></div>
 
-    </div>
     <div class="tall">
         <img src="https://placekitten.com/g/50/200">
     </div>
