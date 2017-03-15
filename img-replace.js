@@ -191,7 +191,7 @@ $(document).ready(function(){
         head.append(newStyle);
 
         // Loop through everything and check if it needs to be replaced
-        $('*').not('html, head, title, style, script').each(function(){
+        $('*').not('html, head, title, style, script,.cagified').each(function(){
 
             var _this = $(this);
             var before = window.getComputedStyle(_this[0], ':before');
@@ -204,22 +204,26 @@ $(document).ready(function(){
 
             counters.totalElements++;
 
-            // check for :before and :after pseudo elements
-            if (beforeContent.length > 1) {
-                // console.log(_this, 'has before pseudo element');
-                beforeReturn = replacePseudoElements(_this, counters.pseudoElementsBefore, counters.pseudoElementsBeforeTotal, before, "before");
-                counters.pseudoElementsBefore = beforeReturn.counter;
-                counters.pseudoElementsBeforeTotal = beforeReturn.totalCounter;
-                // counters.pseudoElementsBefore = replacePseudoElements(_this, counters.pseudoElementsBefore, counters.pseudoElementsBeforeTotal, before, "before");
-            }
-            if (afterContent.length > 1) {
-                // console.log(_this, 'has after pseudo element');
+            // check for :before and :after pseudo elements, but not on i elements because we do those differently
+            if (!_this.is('i')) {
+                if (beforeContent.length > 1) {
+                    // console.log(_this, 'has before pseudo element');
+                    beforeReturn = replacePseudoElements(_this, counters.pseudoElementsBefore, counters.pseudoElementsBeforeTotal, before, "before");
+                    counters.pseudoElementsBefore = beforeReturn.counter;
+                    counters.pseudoElementsBeforeTotal = beforeReturn.totalCounter;
+                    // counters.pseudoElementsBefore = replacePseudoElements(_this, counters.pseudoElementsBefore, counters.pseudoElementsBeforeTotal, before, "before");
+                }
+                if (afterContent.length > 1) {
+                    // console.log(_this, 'has after pseudo element');
 
-                afterReturn = replacePseudoElements(_this, counters.pseudoElementsAfter, counters.pseudoElementsAfterTotal, after, "after");
-                counters.pseudoElementsAfter = afterReturn.counter;
-                counters.pseudoElementsAfterTotal = afterReturn.totalCounter;
-                // counters.pseudoElementsAfter = replacePseudoElements(_this, counters.pseudoElementsAfter, after, "after");
+                    afterReturn = replacePseudoElements(_this, counters.pseudoElementsAfter, counters.pseudoElementsAfterTotal, after, "after");
+                    counters.pseudoElementsAfter = afterReturn.counter;
+                    counters.pseudoElementsAfterTotal = afterReturn.totalCounter;
+                    // counters.pseudoElementsAfter = replacePseudoElements(_this, counters.pseudoElementsAfter, after, "after");
+                }
+
             }
+
 
             // Check the element itself to see if it needs replacing
             if (_this.css('background-image') !== 'none') {
@@ -285,23 +289,50 @@ $(document).ready(function(){
         var counter = counter;
         var totalCounter = totalCounter;
         var head = $('head');
+        var usingParentDimensions = false;
+
+        // console.log(_this);
+        // console.log(pseudo);
 
         //Get pseudo's dimensions for url
         // get width value
         var pseudoWidthPx = pseudo.getPropertyValue('width');
         // remove px from it
         var pseudoWidth = pseudoWidthPx.replace('px', '');
+
+        if (pseudoWidth == "auto") {
+            console.log('autowidth');
+            var pseudoWidthClean = Math.floor(_this.outerWidth());
+            usingParentDimensions = true;
+        } else {
+            var pseudoWidthClean = parseInt(pseudoWidth);
+        }
+
         // make it a whole number
-        var pseudoWidthClean = parseInt(pseudoWidth);
+        // var pseudoWidthClean = parseInt(pseudoWidth);
         // add px so it can be used again
         var pseudoWidthPxClean = pseudoWidthClean + "px";
         // console.log('pseudo widths:', pseudoWidthPx, pseudoWidth, pseudoWidthClean, pseudoWidthPxClean);
 
         var pseudoHeightPx = pseudo.getPropertyValue('height');
         var pseudoHeight = pseudoHeightPx.replace('px', '');
-        var pseudoHeightClean = parseInt(pseudoHeight);
+
+        if (pseudoHeight == "auto") {
+            console.log('autoheight');
+            var pseudoHeightClean = Math.floor(_this.outerHeight());
+            usingParentDimensions = true;
+        } else {
+            var pseudoHeightClean = parseInt(pseudoHeight);
+        }
         var pseudoHeightPxClean = pseudoHeightClean + "px";
-        // console.log('pseudo height:', pseudoHeightPx, pseudoHeight, pseudoHeightClean, pseudoHeightPxClean);
+        // var pseudoHeightClean = parseInt(pseudoHeight);
+        // var pseudoHeightPxClean = pseudoHeightClean + "px";
+        console.log('pseudo height:', pseudoHeightPx, pseudoHeight, pseudoHeightClean, pseudoHeightPxClean);
+
+        // check if the value is "auto". if so, use the parents height/width
+        // if (psuedoHeight == "auto") {
+        //     console.log('autoheight');
+        // }
 
         // Cycle through the different placecage options
         counter++;
@@ -313,8 +344,15 @@ $(document).ready(function(){
         newUrl = "url(" + settings.placeholderSite + imgType + pseudoWidthClean + "/" + pseudoHeightClean + ")";
 
         // Add new rule and class for new image styles
-        var pseudoClass = 'pseudo-' + beforeOrAfter + 'BG-' + totalCounter;
-        var pseudoRule = '.' + pseudoClass + ':' + beforeOrAfter + '{ content: "" !important; background-image: ' + newUrl + ' !important; background-size: cover !important; background-position: 0 0 !important; width: ' + pseudoWidthPxClean + ' !important ; height: ' + pseudoHeightPxClean + ' !important; }';
+        var pseudoClass = 'pseudo-' + beforeOrAfter + '-BG-' + totalCounter;
+        if (usingParentDimensions) {
+            var pseudoRule = '.' + pseudoClass + ':' + beforeOrAfter + '{ content: "" !important; background-image: ' + newUrl + ' !important; background-size: cover !important; background-position: 0 0 !important; width: ' + pseudoWidthPxClean + ' !important ; height: ' + pseudoHeightPxClean + ' !important; display: inline-block !important; top: 0; left: 0; position: absolute;}';
+        } else {
+            var pseudoRule = '.' + pseudoClass + ':' + beforeOrAfter + '{ content: "" !important; background-image: ' + newUrl + ' !important; background-size: cover !important; background-position: 0 0 !important; width: ' + pseudoWidthPxClean + ' !important ; height: ' + pseudoHeightPxClean + ' !important;}';
+
+        }
+
+        // display: inline-block; top: 0; left: 0;?????
         _this.addClass(pseudoClass);
 
         // Add new rule to head of document
