@@ -168,6 +168,7 @@ $(document).ready(function(){
         counters.videos = 0;
         counters.svgs = 0;
         counters.iElements = 0;
+        counters.fontIcons = 0;
         counters.pseudoElementsBefore = 0;
         counters.pseudoElementsBeforeTotal = 0;
         counters.pseudoElementsAfter = 0;
@@ -191,7 +192,7 @@ $(document).ready(function(){
         head.append(newStyle);
 
         // Loop through everything and check if it needs to be replaced
-        $('*').not('html, head, title, style, script,.cagified').each(function(){
+        $('*').not('html, head, title, meta, link, style, script,.cagified').each(function(){
 
             var _this = $(this);
             var before = window.getComputedStyle(_this[0], ':before');
@@ -200,12 +201,25 @@ $(document).ready(function(){
             var after = window.getComputedStyle(_this[0], ':after');
             var afterContent = after.getPropertyValue('content');
             var afterReturn;
+            var isFontIcon = false;
+            var elementClasses = _this.attr('class');
             // console.log('beforeContent', beforeContent, 'afterContent', afterContent);
 
             counters.totalElements++;
 
-            // check for :before and :after pseudo elements, but not on i elements because we do those differently
-            if (!_this.is('i')) {
+
+
+            // check for font icons first
+            if (_this.hasClass('fa') || _this.hasClass('glyphicons') || _this.hasClass('octicon') || _this.hasClass('typcn')) {
+                isFontIcon = true;
+            } else if (elementClasses) {
+                if (_this.attr('data-icon') || elementClasses.indexOf('fi-') > -1 || elementClasses.indexOf('ion-') > -1 || elementClasses.indexOf('icon-') > -1) {
+                    isFontIcon = true;
+                }
+            }
+
+            // check for :before and :after pseudo elements, but not on elements that might be icon fonts
+            if (!isFontIcon) {
                 if (beforeContent.length > 1) {
                     // console.log(_this, 'has before pseudo element');
                     beforeReturn = replacePseudoElements(_this, counters.pseudoElementsBefore, counters.pseudoElementsBeforeTotal, before, "before");
@@ -223,7 +237,6 @@ $(document).ready(function(){
                 }
 
             }
-
 
             // Check the element itself to see if it needs replacing
             if (_this.css('background-image') !== 'none') {
@@ -261,15 +274,36 @@ $(document).ready(function(){
                 counters.svgs = replaceSVGs(_this, counters.svgs);
                 // console.log('after video element', counters.svgs);
 
-            } else if (_this.is('i')) {
-                // console.log(_this, 'is i element');
+            }
+            // else if (_this.is('i')) {
+            //     // console.log(_this, 'is i element');
+
+            //     // console.log('before video element', counters.iElements);
+            //     counters.iElements = replaceIElements(_this, counters.iElements);
+            //     // console.log('after video element', counters.iElements);
+
+            // }
+            else if (isFontIcon) {
+                // console.log(_this, 'is a font icon');
+
+                // console.log('before font icon element', counters.fontIcons);
+                counters.fontIcons = replaceFontIcons(_this, counters.fontIcons);
+                // console.log('before font icon element', counters.fontIcons);
+
+            } else if (elementClasses) {
+                if (_this.attr('data-icon') || elementClasses.indexOf('fi-') > -1 || elementClasses.indexOf('ion-') > -1 || elementClasses.indexOf('icon-') > -1) {
+                    // console.log(_this, 'is a font icon');
+
+                    counters.fontIcons = replaceFontIcons(_this, counters.fontIcons);
+
+                }
 
                 // console.log('before video element', counters.iElements);
-                counters.iElements = replaceIElements(_this, counters.iElements);
+                // counters.fontIcons = replaceFontIcons(_this, counters.fontIcons);
                 // console.log('after video element', counters.iElements);
 
             } else {
-                // console.log(_this, 'other thing');
+                // console.log(_this, 'Not nickable');
 
             }
         });
@@ -631,6 +665,68 @@ $(document).ready(function(){
             _this.addClass('cagified-bg cagified-bg--svg');
 
             // clear svg in case it contains anything
+            _this.empty();
+        }
+
+        return counter;
+    }
+
+    function replaceFontIcons(_this, counter) {
+        var imgType;
+        var counter = counter;
+
+        var newURL;
+
+        // get dimensions of current svg
+        var width = Math.floor(_this.outerWidth());
+        var height = Math.floor(_this.outerHeight());
+        var backgroundSize = 'cover';
+
+        // If the dimensions are 0 x 0 do nothing
+        if ( (width >= 1) && (height >= 1) ) {
+
+            // Set up dimensions of current element as strings to be used for css rules later
+            var widthString = 'width: ' + width + 'px !important; ';
+            var heightString = 'height: ' + height + 'px !important; ';
+            // console.log('widthString: ', widthString, 'heightString: ', heightString);
+
+            // Check if the element is very wide or very tall. if it is, set new dimensions as needed so we can add a tiled background image
+            var isWideOrTall = isWideOrTallRectangle(width, height, _this);
+            // console.log('isWideOrTall: ', isWideOrTall);
+
+            if (isWideOrTall.wideOrTall === "wide") {
+                width = isWideOrTall.newWidth;
+                backgroundSize = isWideOrTall.newBackgroundSize;
+            } else if (isWideOrTall.wideOrTall === "tall") {
+                height = isWideOrTall.newHeight;
+                backgroundSize = isWideOrTall.newBackgroundSize;
+            }
+
+            // Cycle through the different placecage options
+            counter++;
+            result = imgCounter(counter);
+            imgType = result.imgType;
+            counter = result.counter;
+
+            // Need to use cssText to use !important
+            newUrl = "background-image: url(" + settings.placeholderSite + imgType + width + "/" + height + ") !important";
+            // combine image url with height and width rules to use in cssText
+            var cssTextVar = widthString + heightString + newUrl;
+            _this.css({
+                'cssText' : cssTextVar,
+                'background-size' : backgroundSize,
+                'background-repeat': 'repeat',
+                'background-position' : 'center center',
+                'display': 'inline-block'
+            });
+
+            // add classes to see it was changed
+            _this.addClass('cagified-bg cagified-bg--i-element');
+
+            // empty all pseudo elements from it, as this is how font icons usually work
+            _this.addClass('kill-pseudo');
+
+            // remove anything besides pseudo elements in there
             _this.empty();
         }
 
