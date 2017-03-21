@@ -210,7 +210,7 @@ $(document).ready(function(){
             if (_this.is('i') || _this.hasClass('fa') || _this.hasClass('glyphicons') || _this.hasClass('glyphicon') || _this.hasClass('octicon') || _this.hasClass('typcn')) {
                 isFontIcon = true;
             } else if (elementClasses) {
-                if (_this.attr('data-icon') || elementClasses.indexOf('fi-') > -1 || elementClasses.indexOf('ion-') > -1) {
+                if (_this.attr('data-icon') || elementClasses.indexOf('fi-') > -1 || elementClasses.indexOf('ion-') > -1 || (_this.is('span') && elementClasses.indexOf('icon-') > -1)) {
                     isFontIcon = true;
                 }
             }
@@ -436,14 +436,18 @@ $(document).ready(function(){
                     title : ''
                 })
                 // add classes to see it was changed
-                _this.addClass('cagified-bg cagified-bg--image');
+                _this.addClass('cagified cagified--image--bg-image');
                 _this.removeAttr("srcset");
             }
             // If the image wasn't a wide or tall rectangle, just replace the image source
             else {
                 newUrl = settings.placeholderSite + imgType + width + "/" + height;
+                _this.addClass('cagified cagified--image');
                 _this.attr("src", newUrl);
                 _this.removeAttr("srcset");
+
+                // add classes to see it was changed
+                _this.addClass('cagified cagified--image');
             }
         }
         return counter;
@@ -531,7 +535,7 @@ $(document).ready(function(){
                 'background-position' : 'center center'
             });
             // add classes to see it was changed
-            _this.addClass('cagified-bg cagified-bg--bg-image');
+            _this.addClass('cagified cagified--bg-image');
         }
 
         return counter;
@@ -556,6 +560,9 @@ $(document).ready(function(){
         // set src to appropriate nick cage youtube video
         _this.attr("src", "about:blank");
         _this.attr("src", newIframe);
+
+        // add classes to see it was changed
+        _this.addClass('cagified cagified--iframeEmded');
 
         return counter;
     }
@@ -586,6 +593,9 @@ $(document).ready(function(){
         // Reload and play new video, just in case
         _this[0].load();
         _this[0].play();
+
+        // add classes to see it was changed
+        _this.addClass('cagified cagified--video');
 
         return counter;
 
@@ -642,7 +652,7 @@ $(document).ready(function(){
             });
 
             // add classes to see it was changed
-            _this.addClass('cagified-bg cagified-bg--svg');
+            _this.addClass('cagified cagified--svg');
 
             // clear svg in case it contains anything
             _this.empty();
@@ -701,7 +711,7 @@ $(document).ready(function(){
             });
 
             // add classes to see it was changed
-            _this.addClass('cagified-bg cagified-bg--font-icon');
+            _this.addClass('cagified cagified--font-icon');
 
             // empty all pseudo elements from it, as this is how font icons usually work
             _this.addClass('kill-pseudo');
