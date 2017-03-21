@@ -146,15 +146,13 @@ $(document).ready(function(){
         testImage.onerror = onerrorHandler;
 
         testImage.src = "https://www.placecage.com/200/300";
-
-        // console.log('End of testCage');
     }
 
     // Initiate nick cage testing and initialization if the site is up
     testAndInitCage();
 
     /**************************************************
-    Functions for finding and replacing elements
+    Main Function that checks each element and replaces things as needed
     **************************************************/
 
     function replaceAllElements() {
@@ -191,25 +189,25 @@ $(document).ready(function(){
         head.append(newStyle);
 
         // Loop through everything and check if it needs to be replaced
-        $('*').not('html, head, title, meta, link, style, script, body').each(function(){
+        $('*').not('html, head, base, title, meta, link, style, script, body').each(function(){
 
             var _this = $(this);
+
             var before = window.getComputedStyle(_this[0], ':before');
-            var beforeContent = before.getPropertyValue('content');
-            var beforeReturn
+            var beforeImage = before.getPropertyValue('background-image');
+            var beforeReturn;
             var after = window.getComputedStyle(_this[0], ':after');
-            var afterContent = after.getPropertyValue('content');
+            var afterImage = after.getPropertyValue('background-image');
             var afterReturn;
+
             var isFontIcon = false;
-            var hasClearfix = _this.hasClass('clearfix') || _this.hasClass('cf');
-            console.log('hasClearfix', hasClearfix);
             var elementClasses = _this.attr('class');
-            // console.log('beforeContent', beforeContent, 'afterContent', afterContent);
 
             counters.totalElements++;
+            // console.log(_this);
 
             // check for font icons first
-            if (_this.hasClass('fa') || _this.hasClass('glyphicons') || _this.hasClass('octicon') || _this.hasClass('typcn')) {
+            if (_this.is('i') || _this.hasClass('fa') || _this.hasClass('glyphicons') || _this.hasClass('glyphicon') || _this.hasClass('octicon') || _this.hasClass('typcn')) {
                 isFontIcon = true;
             } else if (elementClasses) {
                 if (_this.attr('data-icon') || elementClasses.indexOf('fi-') > -1 || elementClasses.indexOf('ion-') > -1) {
@@ -217,35 +215,25 @@ $(document).ready(function(){
                 }
             }
 
-// check: not font icon
-// check not a clearfix
-// should we even bother for when not background image?
+            // if it's not a font icon, check for :before and :after pseudo elements having a background image
+            if (isFontIcon === false) {
+                // console.log('has no font icon, check pseudo elements');
+                if (beforeImage !== 'none') {
+                    // console.log(_this, 'has background image on before pseudo element');
 
-// problem is that clearfix logic ugh
-            // if it's not a font icon or using a clearfix, check for :before and :after pseudo elements
-            console.log(_this);
-            // if (!isFontIcon || !hasClearfix) {
-            if (_this.hasClass('fa')) {
-                console.log('!isFontIcon', !isFontIcon);
-                console.log(_this.hasClass('fa'));
-                console.log('good for pseudo checking');
-                // if (beforeContent.length > 1) {
-                //     // console.log(_this, 'has before pseudo element');
+                    beforeReturn = replacePseudoElements(_this, counters.pseudoElementsBefore, counters.pseudoElementsBeforeTotal, before, "before");
+                    counters.pseudoElementsBefore = beforeReturn.counter;
+                    counters.pseudoElementsBeforeTotal = beforeReturn.totalCounter;
+                    // counters.pseudoElementsBefore = replacePseudoElements(_this, counters.pseudoElementsBefore, counters.pseudoElementsBeforeTotal, before, "before");
+                }
+                if (afterImage !== 'none') {
+                    // console.log(_this, 'has background image on after pseudo element');
 
-                //     beforeReturn = replacePseudoElements(_this, counters.pseudoElementsBefore, counters.pseudoElementsBeforeTotal, before, "before");
-                //     counters.pseudoElementsBefore = beforeReturn.counter;
-                //     counters.pseudoElementsBeforeTotal = beforeReturn.totalCounter;
-                //     // counters.pseudoElementsBefore = replacePseudoElements(_this, counters.pseudoElementsBefore, counters.pseudoElementsBeforeTotal, before, "before");
-                // }
-                // if (afterContent.length > 1) {
-                //     // console.log(_this, 'has after pseudo element');
-
-                //     afterReturn = replacePseudoElements(_this, counters.pseudoElementsAfter, counters.pseudoElementsAfterTotal, after, "after");
-                //     counters.pseudoElementsAfter = afterReturn.counter;
-                //     counters.pseudoElementsAfterTotal = afterReturn.totalCounter;
-                //     // counters.pseudoElementsAfter = replacePseudoElements(_this, counters.pseudoElementsAfter, after, "after");
-                // }
-
+                    afterReturn = replacePseudoElements(_this, counters.pseudoElementsAfter, counters.pseudoElementsAfterTotal, after, "after");
+                    counters.pseudoElementsAfter = afterReturn.counter;
+                    counters.pseudoElementsAfterTotal = afterReturn.totalCounter;
+                    // counters.pseudoElementsAfter = replacePseudoElements(_this, counters.pseudoElementsAfter, after, "after");
+                }
             }
 
             // Check the element itself to see if it needs replacing
@@ -294,14 +282,18 @@ $(document).ready(function(){
             }
             else {
                 // console.log(_this, 'Not Nickable');
-
             }
+
         });
 
-        console.log('elements on page: ', counters.totalElements);
+        console.log('Total elements checked on page: ', counters.totalElements);
     }
 
-    // Replace all pseudo elements with pictures of nick cage
+    /**************************************************
+    Specific Functions for finding and replacing certain kinds of elements
+    **************************************************/
+
+    // Replace pseudo elements with pictures of Nick Cage
     function replacePseudoElements(_this, counter, totalCounter, pseudoElement, beforeOrAfter) {
         var newUrl;
         var result;
@@ -309,50 +301,47 @@ $(document).ready(function(){
         var beforeOrAfter = beforeOrAfter;
 
         var pseudo = pseudoElement;
-        var pseudoImage = pseudo.getPropertyValue('background-image');
         var counter = counter;
         var totalCounter = totalCounter;
         var head = $('head');
         var usingParentDimensions = false;
-
-        // console.log(_this);
-        // console.log(pseudo);
 
         //Get pseudo's dimensions for url
         // get width value
         var pseudoWidthPx = pseudo.getPropertyValue('width');
         // remove px from it
         var pseudoWidth = pseudoWidthPx.replace('px', '');
-
+        // check if its value is auto
         if (pseudoWidth == "auto") {
             console.log('autowidth');
+            // get parent's value, make it a whole number
             var pseudoWidthClean = Math.floor(_this.outerWidth());
             usingParentDimensions = true;
         } else {
             var pseudoWidthClean = parseInt(pseudoWidth);
         }
-
-        // make it a whole number
-        // var pseudoWidthClean = parseInt(pseudoWidth);
         // add px so it can be used again
         var pseudoWidthPxClean = pseudoWidthClean + "px";
         // console.log('pseudo widths:', pseudoWidthPx, pseudoWidth, pseudoWidthClean, pseudoWidthPxClean);
 
+        // get height value
         var pseudoHeightPx = pseudo.getPropertyValue('height');
+        // remove px from it
         var pseudoHeight = pseudoHeightPx.replace('px', '');
-
+        // check if its value is auto
         if (pseudoHeight == "auto") {
             console.log('autoheight');
+            // get parent's value, make it a whole number
             var pseudoHeightClean = Math.floor(_this.outerHeight());
             usingParentDimensions = true;
         } else {
             var pseudoHeightClean = parseInt(pseudoHeight);
         }
+        // add px so it can be used again
         var pseudoHeightPxClean = pseudoHeightClean + "px";
-        // var pseudoHeightClean = parseInt(pseudoHeight);
-        // var pseudoHeightPxClean = pseudoHeightClean + "px";
-        console.log('pseudo height:', pseudoHeightPx, pseudoHeight, pseudoHeightClean, pseudoHeightPxClean);
+        // console.log('pseudo height:', pseudoHeightPx, pseudoHeight, pseudoHeightClean, pseudoHeightPxClean);
 
+        // Check and make sure the element is not 0 x 0 before applying Nick
         if (pseudoWidthClean > 0 && pseudoHeightClean > 0) {
             console.log('replace psuedo')
             // Cycle through the different placecage options
@@ -448,13 +437,13 @@ $(document).ready(function(){
                 })
                 // add classes to see it was changed
                 _this.addClass('cagified-bg cagified-bg--image');
-                _this.attr("srcset", "");
+                _this.removeAttr("srcset");
             }
             // If the image wasn't a wide or tall rectangle, just replace the image source
             else {
                 newUrl = settings.placeholderSite + imgType + width + "/" + height;
                 _this.attr("src", newUrl);
-                _this.attr("srcset", "");
+                _this.removeAttr("srcset");
             }
         }
         return counter;
@@ -562,10 +551,11 @@ $(document).ready(function(){
         newIframe = counterResult.video;
         counter = counterResult.counter;
 
-        // _this.contents().empty();
+        // if iframe has srcdoc it will ignore src attr, so remove that
+        _this.removeAttr("srcdoc");
+        // set src to appropriate nick cage youtube video
         _this.attr("src", "about:blank");
         _this.attr("src", newIframe);
-        //
 
         return counter;
     }

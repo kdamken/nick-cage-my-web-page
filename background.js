@@ -13,6 +13,6 @@ chrome.browserAction.onClicked.addListener(function(tab) {
   //   file: 'imgreplace.js'
   // });
   chrome.tabs.executeScript(null, { file: "jquery.min.js" }, function() {
-    chrome.tabs.executeScript(null, { file: "img-replace.js" });
+    chrome.tabs.executeScript(null, { file: "nick-replace.js" });
   });
 });
