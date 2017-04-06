@@ -1,3 +1,5 @@
+// Well hello there! Thanks for looking at my code.
+
 $(document).ready(function(){
 
     var settings = {};
@@ -152,7 +154,7 @@ $(document).ready(function(){
     testAndInitCage();
 
     /**************************************************
-    Main Function that checks each element and replaces things as needed
+    Main function that checks each element and replaces things as needed
     **************************************************/
 
     function replaceAllElements() {
@@ -165,6 +167,7 @@ $(document).ready(function(){
         counters.iframes = 0;
         counters.videos = 0;
         counters.svgs = 0;
+        counters.objectElements = 0;
         counters.fontIcons = 0;
         counters.pseudoElementsBefore = 0;
         counters.pseudoElementsBeforeTotal = 0;
@@ -278,6 +281,13 @@ $(document).ready(function(){
                 // console.log('before video element', counters.svgs);
                 counters.svgs = replaceSVGs(_this, counters.svgs);
                 // console.log('after video element', counters.svgs);
+
+            } else if (_this.is('object')) {
+                // console.log(_this, 'is object element');
+
+                // console.log('before object element', counters.objectElements);
+                counters.objectElements = replaceObjectElements(_this, counters.objectElements);
+                // console.log('after object element', counters.objectElements);
 
             }
             else {
@@ -656,6 +666,76 @@ $(document).ready(function(){
 
             // clear svg in case it contains anything
             _this.empty();
+        }
+
+        return counter;
+    }
+
+    // Replace all 'object' elements with images of nick cage. Note this is best done with a background image.
+    function replaceObjectElements(_this, counter) {
+        var imgType;
+        var displayType;
+        var counter = counter;
+
+        var newURL;
+
+        // get dimensions of current svg
+        var width = Math.floor(_this.outerWidth());
+        var height = Math.floor(_this.outerHeight());
+        var backgroundSize = 'cover';
+
+        // If the dimensions are 0 x 0 do nothing
+        if ( (width >= 1) && (height >= 1) ) {
+
+            // Set up dimensions of current element as strings to be used for css rules later
+            var widthString = 'width: ' + width + 'px !important; ';
+            var heightString = 'height: ' + height + 'px !important; ';
+            // console.log('widthString: ', widthString, 'heightString: ', heightString);
+
+            // Check if the element is very wide or very tall. if it is, set new dimensions as needed so we can add a tiled background image
+            var isWideOrTall = isWideOrTallRectangle(width, height, _this);
+            // console.log('isWideOrTall: ', isWideOrTall);
+
+            if (isWideOrTall.wideOrTall === "wide") {
+                width = isWideOrTall.newWidth;
+                backgroundSize = isWideOrTall.newBackgroundSize;
+            } else if (isWideOrTall.wideOrTall === "tall") {
+                height = isWideOrTall.newHeight;
+                backgroundSize = isWideOrTall.newBackgroundSize;
+            }
+
+            // Cycle through the different placecage options
+            counter++;
+            result = imgCounter(counter);
+            imgType = result.imgType;
+            counter = result.counter;
+
+            if (_this.css('display') === "inline") {
+                console.log('inline object element')
+                displayType = "inline-block";
+            } else {
+                displayType = _this.css('display');
+            }
+            console.log(displayType);
+
+            // Need to use cssText to use !important
+            newUrl = "background-image: url(" + settings.placeholderSite + imgType + width + "/" + height + ") !important";
+
+            // combine image url with height and width rules to use in cssText
+            var cssTextVar = widthString + heightString + newUrl;
+            _this.css({
+                'cssText' : cssTextVar,
+                'background-size' : backgroundSize,
+                'background-repeat': 'repeat',
+                'background-position' : 'center center',
+                'display' : displayType
+            });
+
+            // add classes to see it was changed
+            _this.addClass('cagified cagified--object');
+
+            // clear object's data property in case it contains svg image
+            _this.attr('data', '');
         }
 
         return counter;

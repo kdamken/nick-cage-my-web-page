@@ -5,13 +5,6 @@
 // Called when the user clicks on the browser action.
 chrome.browserAction.onClicked.addListener(function(tab) {
   // No tabs or host permissions needed!
-  console.log('Turning ' + tab.url + ' red!');
-  // chrome.tabs.executeScript({
-  //   file: 'jquery.min.js'
-  // });
-  // chrome.tabs.executeScript({
-  //   file: 'imgreplace.js'
-  // });
   chrome.tabs.executeScript(null, { file: "jquery.min.js" }, function() {
     chrome.tabs.executeScript(null, { file: "nick-replace.js" });
   });

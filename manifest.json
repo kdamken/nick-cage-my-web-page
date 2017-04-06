@@ -1,9 +1,10 @@
 {
-  "manifest_version": 1,
+  "manifest_version": 2,
 
   "name": "Nick Cage My Web Page",
-  "description": "See title",
+  "description": "Takes all of the iamges and videos on a web site and replaces them with pictures and videos of Nick Cage.",
   "version": "1.0",
+  "author": "Kyle Damken",
   "background": {
     "scripts": ["background.js"],
     "persistent": false
