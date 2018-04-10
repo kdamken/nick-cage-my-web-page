@@ -6,7 +6,7 @@
   "version": "1.0",
   "author": "Kyle Damken",
   "background": {
-    "scripts": ["background.js"],
+    "scripts": ["js/background.js"],
     "persistent": false
   },
   "icons": {
@@ -15,10 +15,13 @@
     "128": "icon.png"
   },
   "browser_action": {
-    "default_icon": "icon128.png",
-    "default_title": "Nick Cage My Web Page"
+    "default_icon": "img/nick-off.png",
+    "default_title": "Nick Cage My Web Page",
+    "default_popup": "popup.html"
   },
   "permissions": [
-    "activeTab"
+    "tabs",
+    "storage",
+    "*://*/*"
   ]
 }

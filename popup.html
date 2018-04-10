@@ -5,33 +5,85 @@
  value "popup.html".
  -->
 <html>
-  <head>
-    <title>Getting Started Extension's Popup</title>
-    <style>
-      body {
-        font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
-        font-size: 100%;
-      }
-      #status {
-        /* avoid an excessively wide status text */
-        white-space: pre;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        max-width: 400px;
-      }
-    </style>
 
-    <!--
-      - JavaScript and HTML must be in separate files: see our Content Security
-      - Policy documentation[1] for details and explanation.
-      -
-      - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
-     -->
-    <script src="popup.js"></script>
-  </head>
-  <body>
-    <div id="status"></div>
-    <img id="image-result" hidden>
-  </body>
+<head>
+  <title>Nick Cage My Web Page</title>
+  <style>
+    body {
+      font-family: "Lucida Grande", Tahoma, sans-serif;
+      font-size: 100%;
+      margin: 0 10px 10px 10px;
+      width: 118px;
+    }
+
+    .preload *,
+    .preload *:before,
+    .preload *:after {
+      transition: none !important;
+    }
+
+    h1 {
+      font-size: 16px;
+      font-weight: 400;
+    }
+
+    .toggle {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 62px;
+      height: 32px;
+      display: inline-block;
+      position: relative;
+      margin: 0;
+      border-radius: 50px;
+      overflow: hidden;
+      outline: none;
+      border: none;
+      cursor: pointer;
+      background-color: #707070;
+      transition: background-color ease 0.3s;
+    }
+
+    .toggle:before {
+      content: "on off";
+      display: block;
+      position: absolute;
+      z-index: 2;
+      width: 28px;
+      height: 28px;
+      background: #fff;
+      left: 2px;
+      top: 2px;
+      border-radius: 50%;
+      font: 10px/28px Helvetica;
+      text-transform: uppercase;
+      font-weight: bold;
+      text-indent: -22px;
+      word-spacing: 37px;
+      color: #fff;
+      text-shadow: -1px -1px rgba(0, 0, 0, 0.15);
+      white-space: nowrap;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s;
+    }
+
+    .toggle:checked {
+      background-color: #1bb76e;
+    }
+
+    .toggle:checked:before {
+      left: 32px;
+    }
+  </style>
+</head>
+
+<body class="preload">
+  <h1>Nick Cage My Web Page</h1>
+
+  <input class="toggle" type="checkbox" checked/>
+
+  <script type="text/javascript" src="js/popup.js">
+  </script>
+</body>
+
 </html>
-
